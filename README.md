@@ -17,6 +17,10 @@
 
 [Architecture](#-system-architecture) • [Features](#-key-features) • [Risk Model](#-mathematical-risk-model) • [IEEE Benchmarks](#-ieee-benchmark-performance) • [Quick Start](#-installation--setup-guide) • [API Docs](#-api-endpoint-reference)
 
+<br/>
+
+![CyberShield AI Posture Dashboard](docs/images/dashboard.jpg)
+
 </div>
 
 ---
@@ -77,6 +81,8 @@ flowchart TD
 - **Executable Patch Generation**: Produces context-aware containment scripts tailored to target host OS and port (Bash, Docker, PowerShell, iptables, Kubernetes NetworkPolicy).
 - **1-Click Remediation Studio**: Select any active vulnerability finding and resolve it directly in the SQLite database with live status synchronization.
 
+![CyberShield Autonomous AI Copilot & Auto-Fix Studio](docs/images/copilot.jpg)
+
 ### 🧬 2. Explainable AI (XAI) & SHAP Feature Attribution
 - **Multi-Factor Decomposition**: Provides exact percentage contributions for every risk score factor:
   - Base CVSS Severity (~35–45%)
@@ -88,6 +94,8 @@ flowchart TD
 
 ### ⚔️ 3. Dynamic Threat Chain & Attack Path Visualizer
 - Generates real-time adversary campaign vectors showing initial entry, perimeter gateway traversal, service exploitation, privilege escalation, and lateral movement.
+
+![CyberShield Threat Chain Attack Path Visualizer](docs/images/attack_path.jpg)
 
 ### 📊 4. IEEE Benchmark Performance Evaluation Suite
 - Quantitative benchmarking suite comparing traditional CVSS-only prioritization against CyberShield AI framework across metrics like MTTR, alert fatigue index, precision@10, and recall@10.
