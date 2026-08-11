@@ -92,6 +92,19 @@ export default function App() {
     setUser(null);
   };
 
+  // If user is not logged in, force Sign In / Register UI first
+  if (!user) {
+    return (
+      <div style={{ ...s.root, background: '#020612', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <AuthModal
+          API={API}
+          onLoginSuccess={handleLoginSuccess}
+          onClose={null}
+        />
+      </div>
+    );
+  }
+
   return (
     <div style={s.root}>
       <Navbar
