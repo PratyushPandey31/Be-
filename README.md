@@ -19,6 +19,11 @@
 
 <br/>
 
+### 📁 Project Deliverables & IEEE Documentation
+📄 **[Read Full IEEE Project Report (`PROJECT_REPORT.md`)](PROJECT_REPORT.md)** &nbsp;|&nbsp; 📊 **[Download Presentation (`CyberShield_AI_Presentation.pptx`)](CyberShield_AI_Presentation.pptx)**
+
+<br/>
+
 ![CyberShield AI Posture Dashboard](docs/images/dashboard.jpg)
 
 </div>
