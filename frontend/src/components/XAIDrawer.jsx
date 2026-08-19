@@ -107,17 +107,30 @@ export default function XAIDrawer({ risk, onClose, onResolve }) {
             ))}
           </div>
 
-          {/* Tab Navigation */}
-          <div style={{ display:'flex', gap:2, marginTop:14 }}>
-            {tabs.map(t=>(
-              <button key={t.id} onClick={()=>setTab(t.id)} style={{
-                padding:'6px 13px', borderRadius:7, border:'none', cursor:'pointer',
-                background: tab===t.id ? 'rgba(0,240,255,0.12)' : 'rgba(255,255,255,0.03)',
-                color: tab===t.id ? '#a5f3fc' : '#64748b',
-                ...M, fontSize:'.65rem', fontWeight: tab===t.id ? 700 : 400,
-                borderBottom: tab===t.id ? `2px solid #00f0ff` : '2px solid transparent',
-              }}>{t.label}</button>
-            ))}
+          {/* Tab Navigation + Audit PDF Button */}
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:14, flexWrap:'wrap', gap:6 }}>
+            <div style={{ display:'flex', gap:2 }}>
+              {tabs.map(t=>(
+                <button key={t.id} onClick={()=>setTab(t.id)} style={{
+                  padding:'6px 13px', borderRadius:7, border:'none', cursor:'pointer',
+                  background: tab===t.id ? 'rgba(0,240,255,0.12)' : 'rgba(255,255,255,0.03)',
+                  color: tab===t.id ? '#a5f3fc' : '#64748b',
+                  ...M, fontSize:'.65rem', fontWeight: tab===t.id ? 700 : 400,
+                  borderBottom: tab===t.id ? `2px solid #00f0ff` : '2px solid transparent',
+                }}>{t.label}</button>
+              ))}
+            </div>
+            <button
+              onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
+              style={{
+                padding:'5px 11px', borderRadius:6, border:'none', cursor:'pointer',
+                background:'linear-gradient(135deg, #00D26A, #005A9C)', color:'#fff',
+                ...M, fontSize:'.63rem', fontWeight:800, display:'flex', alignItems:'center', gap:4
+              }}
+              title="Download Full 4-Page Accuracy Audit Report"
+            >
+              📥 Download Accuracy Audit (PDF)
+            </button>
           </div>
         </div>
 

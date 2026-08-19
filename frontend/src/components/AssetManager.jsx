@@ -138,13 +138,33 @@ export default function AssetManager({ assets, onCreate, risks = [] }) {
           <p style={{ fontWeight:800, fontSize:'1rem', color:'#fff', marginBottom:3 }}>🖥️ Network Asset Discovery &amp; Criticality Inventory</p>
           <p style={{ fontSize:'.72rem', color:'#64748b' }}>Topology-mapped asset registry · Context provider for AI risk computation · Click any row for details</p>
         </div>
-        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+        <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+          <button
+            onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
+            className="btn btn-sm"
+            style={{
+              background: 'linear-gradient(135deg, #00D26A, #005A9C)',
+              color: '#fff',
+              fontWeight: 800,
+              padding: '8px 14px',
+              borderRadius: 8,
+              border: 'none',
+              fontSize: '.72rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              boxShadow: '0 0 14px rgba(0,210,106,0.35)'
+            }}
+          >
+            📥 Download Accuracy Audit (PDF)
+          </button>
           <div style={{ display:'flex', gap:6 }}>
             <span style={{ ...M, fontSize:'.68rem', color:'#94a3b8', background:'rgba(255,255,255,0.04)', padding:'6px 12px', borderRadius:7, border:'1px solid rgba(255,255,255,0.07)' }}>
               {assets.length} Assets Registered
             </span>
           </div>
-          <button className="btn btn-primary" onClick={()=>setModal(true)}>+ Register New Asset</button>
+          <button className="btn btn-primary btn-sm" onClick={()=>setModal(true)}>+ Register New Asset</button>
         </div>
       </div>
 

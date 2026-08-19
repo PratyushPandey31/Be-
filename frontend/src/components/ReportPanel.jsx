@@ -24,9 +24,25 @@ export default function ReportPanel({ stats, risks, metrics }) {
           <p style={{ fontWeight:700, fontSize:'.95rem', color:'#fff' }}>▤ Executive Vulnerability Assessment Report</p>
           <p style={{ fontSize:'.7rem', color:'#64748b', marginTop:3 }}>IEEE Publication-Grade Report Generator — CyberShield AI Framework</p>
         </div>
-        <button className="btn btn-primary" onClick={doPrint} disabled={gen}>
-          {gen?'Generating…':'🖨️ Export / Print Report'}
-        </button>
+        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+          <button
+            onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
+            className="btn btn-sm"
+            style={{
+              background: 'linear-gradient(135deg, #00D26A, #005A9C)',
+              color: '#fff',
+              fontWeight: 800,
+              border: 'none',
+              boxShadow: '0 0 12px rgba(0,210,106,0.35)',
+              cursor: 'pointer'
+            }}
+          >
+            📥 Download Nessus &amp; OpenVAS Accuracy Audit (PDF)
+          </button>
+          <button className="btn btn-primary" onClick={doPrint} disabled={gen}>
+            {gen?'Generating…':'🖨️ Export / Print Report'}
+          </button>
+        </div>
       </div>
 
       {/* ══ REPORT DOCUMENT ══ */}

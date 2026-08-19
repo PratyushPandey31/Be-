@@ -76,8 +76,30 @@ export default function Navbar({ tab, setTab, online, stats, scanning, user, onO
           ))}
         </nav>
 
-        {/* User Auth Chip + Live Metrics */}
+        {/* User Auth Chip + Audit Download + Live Metrics */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <button
+            onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
+            className="btn btn-sm"
+            style={{
+              background: 'linear-gradient(135deg, #00D26A, #005A9C)',
+              color: '#fff',
+              fontWeight: 800,
+              padding: '6px 12px',
+              borderRadius: 8,
+              border: 'none',
+              fontSize: '.68rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              boxShadow: '0 0 14px rgba(0,210,106,0.4)'
+            }}
+            title="Download Full 4-Page Accuracy Benchmark Audit PDF"
+          >
+            📥 Audit PDF
+          </button>
+
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px', background: 'rgba(0,240,255,0.06)', border: '1px solid rgba(0,240,255,0.2)', borderRadius: 8 }}>
               <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,240,255,0.2)', color: '#00f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', ...M, fontSize: '.7rem', fontWeight: 800 }}>

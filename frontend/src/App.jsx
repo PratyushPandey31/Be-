@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
-import AICopilot from './components/AICopilot';
 import AssetManager from './components/AssetManager';
 import RiskPrioritizer from './components/RiskPrioritizer';
 import ScannerPanel from './components/ScannerPanel';
@@ -9,10 +8,9 @@ import EvaluationPanel from './components/EvaluationPanel';
 import ReportPanel from './components/ReportPanel';
 import XAIDrawer from './components/XAIDrawer';
 import AuthModal from './components/AuthModal';
+import AICopilotDrawer from './components/AICopilotDrawer';
 
-const API = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  ? 'http://localhost:8000/api'
-  : 'http://127.0.0.1:8000/api';
+const API = 'http://127.0.0.1:8000/api';
 
 const s = {
   root:   { minHeight:'100vh', display:'flex', flexDirection:'column', fontFamily:"'Inter', system-ui, sans-serif" },
@@ -36,8 +34,11 @@ export default function App() {
   const [scanning, setScanning] = useState(false);
 
   // User Auth State
-  const [user, setUser]         = useState(null);
+  const [user, setUser]                 = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // AI Copilot Drawer State
+  const [showCopilot, setShowCopilot]   = useState(false);
 
   useEffect(() => {
     // Check saved user session in localStorage
@@ -92,25 +93,13 @@ export default function App() {
     setUser(null);
   };
 
-  // If user is not logged in, force Sign In / Register UI first
-  if (!user) {
-    return (
-      <div style={{ ...s.root, background: '#020612', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <AuthModal
-          API={API}
-          onLoginSuccess={handleLoginSuccess}
-          onClose={null}
-        />
-      </div>
-    );
-  }
-
   return (
     <div style={s.root}>
       <Navbar
         tab={tab} setTab={setTab} online={online} stats={stats} scanning={scanning}
         user={user} onOpenAuth={() => setShowAuthModal(true)} onLogout={handleLogout}
       />
+
       <main style={s.main}>
         {loading ? (
           <div style={s.loader}>
@@ -124,8 +113,8 @@ export default function App() {
           </div>
         ) : (
           <div className="anim-fadeup">
-            {tab==='dashboard'  && <Dashboard  stats={stats} risks={risks} goto={setTab}/>}
-            {tab==='aicopilot'  && <AICopilot  API={API} risks={risks} onRefresh={fetchAll}/>}
+            {tab==='dashboard'  && <Dashboard  stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)}/>}
+            {tab==='aicopilot'  && <AICopilotDrawer API={API} onClose={()=>setTab('dashboard')}/>}
             {tab==='assets'     && <AssetManager assets={assets} onCreate={createAsset} risks={risks}/>}
             {tab==='prioritize' && <RiskPrioritizer risks={risks} onXai={setXai}/>}
             {tab==='scanner'    && (
@@ -144,8 +133,27 @@ export default function App() {
 
       <footer style={s.footer}>
         CyberShield AI — Intelligent Vulnerability Assessment &amp; Risk Prioritization &nbsp;|&nbsp;
-        IEEE Research Platform &nbsp;|&nbsp; JWT Auth Active &nbsp;|&nbsp; v1.0
+        IEEE Research Platform &nbsp;|&nbsp; AI Copilot Active &nbsp;|&nbsp; v1.0
       </footer>
+
+      {/* Floating CyberShield AI Copilot Trigger Button */}
+      <button
+        onClick={() => setShowCopilot(true)}
+        style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 120,
+          background: 'linear-gradient(135deg, #00f0ff, #8b5cf6)',
+          border: '1px solid rgba(255,255,255,0.4)', borderRadius: 99,
+          padding: '12px 20px', color: '#fff', cursor: 'pointer',
+          boxShadow: '0 6px 24px rgba(0,240,255,0.4), 0 0 40px rgba(139,92,246,0.3)',
+          fontFamily: "'JetBrains Mono',monospace", fontSize: '.82rem', fontWeight: 800,
+          display: 'flex', alignItems: 'center', gap: 8, transition: 'all .2s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)'}
+        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0) scale(1)'}
+      >
+        <span style={{ fontSize: '1.1rem', animation: 'pulse 1.5s ease infinite' }}>🤖</span>
+        <span>AI Copilot</span>
+      </button>
 
       {xai && <XAIDrawer risk={xai} onClose={()=>setXai(null)} onResolve={handleResolve}/>}
 
@@ -154,6 +162,13 @@ export default function App() {
           API={API}
           onLoginSuccess={handleLoginSuccess}
           onClose={() => setShowAuthModal(false)}
+        />
+      )}
+
+      {showCopilot && (
+        <AICopilotDrawer
+          API={API}
+          onClose={() => setShowCopilot(false)}
         />
       )}
     </div>

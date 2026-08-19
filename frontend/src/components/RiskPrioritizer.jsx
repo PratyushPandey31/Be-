@@ -142,6 +142,26 @@ export default function RiskPrioritizer({ risks, onXai }) {
             </p>
           </div>
           <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+            <button
+              onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
+              className="btn btn-sm"
+              style={{
+                background: 'linear-gradient(135deg, #00D26A, #005A9C)',
+                color: '#fff',
+                fontWeight: 800,
+                padding: '6px 12px',
+                borderRadius: 8,
+                border: 'none',
+                fontSize: '.72rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                boxShadow: '0 0 14px rgba(0,210,106,0.35)'
+              }}
+            >
+              📥 Download Accuracy Audit (PDF)
+            </button>
             <div style={{ display:'flex', gap:8 }}>
               <span style={{ ...M, fontSize:'.68rem', color:'#ef4444', background:'rgba(239,68,68,.1)', border:'1px solid rgba(239,68,68,.2)', padding:'4px 10px', borderRadius:6 }}>
                 ● {summary.crit} Critical

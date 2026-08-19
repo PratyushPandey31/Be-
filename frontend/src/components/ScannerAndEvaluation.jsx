@@ -130,7 +130,17 @@ export default function ScannerAndEvaluation({ onScanComplete }) {
           <div className="glass-panel p-6 lg:col-span-2 space-y-3 font-mono text-xs">
             <div className="flex justify-between items-center pb-2 border-b border-white/10 text-gray-400">
               <span className="flex items-center gap-1.5"><Terminal className="w-4 h-4 text-cyan-400" /> Scanner CLI Output</span>
-              <span className="text-[10px] text-gray-500">Nmap v7.94 / OpenVAS / CyberShield AI</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-gray-500">Nmap v7.94 / OpenVAS / CyberShield AI</span>
+                {logs.length > 0 && !scanning && (
+                  <button
+                    onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
+                    className="px-3 py-1 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-bold text-[11px] hover:opacity-90 transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20"
+                  >
+                    📥 Download Accuracy Report (PDF)
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="h-64 overflow-y-auto bg-slate-950 p-4 rounded-xl border border-white/5 space-y-2">

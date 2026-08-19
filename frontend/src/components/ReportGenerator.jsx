@@ -16,13 +16,20 @@ export default function ReportGenerator({ stats, prioritizedRisks }) {
             Executive & IEEE Conference Publication Report
           </h2>
           <p className="text-xs text-gray-400">Exportable research report and security posture evaluation summary</p>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-bold text-xs hover:opacity-90 shadow-lg shadow-emerald-500/20 transition-all"
+          >
+            <Download className="w-4 h-4" /> Download Nessus &amp; OpenVAS Accuracy Report (PDF)
+          </button>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 text-black font-semibold text-xs hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 transition-all"
+          >
+            <Printer className="w-4 h-4" /> Print / Export IEEE Summary PDF
+          </button>
         </div>
-        <button
-          onClick={handlePrint}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 text-black font-semibold text-xs hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 transition-all"
-        >
-          <Printer className="w-4 h-4" /> Print / Export IEEE Summary PDF
-        </button>
       </div>
 
       {/* Printable Report Document */}
