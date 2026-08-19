@@ -1215,18 +1215,16 @@ export default function EvaluationPanel({ metrics }) {
                   CyberShield AI: An Intelligent Vulnerability Assessment and Risk Prioritization Framework Using Explainable AI
                 </h1>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginTop: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginTop: 16, maxWidth: 620, margin: '16px auto 0' }}>
                   {[
-                    { name: 'Pratyush Pandey', role: 'Author / Researcher', dept: 'Thakur College of Engg. & Tech.', email: '1032230135@tcetmumbai.in' },
-                    { name: 'Neev Jain', role: 'Author / Researcher', dept: 'Thakur College of Engg. & Tech.', email: '1032230132@tcetmumbai.in' },
-                    { name: 'Ankush Sahu', role: 'Author / Researcher', dept: 'Thakur College of Engg. & Tech.', email: '1032230146@tcetmumbai.in' },
-                    { name: 'Pramod Patil', role: 'Project Guide & Asst. Prof.', dept: 'Thakur College of Engg. & Tech.', email: 'pramodpatil@tcetmumbai.in' },
+                    { name: 'Pratyush Pandey', role: 'Lead Author & Researcher (Roll 34)', dept: 'Dept. of CSE (Cyber Security), TCET Mumbai', email: '1032230135@tcetmumbai.in' },
+                    { name: 'Prof. Pramod Patil', role: 'Project Guide & Asst. Professor', dept: 'Dept. of CSE (Cyber Security), TCET Mumbai', email: 'pramodpatil@tcetmumbai.in' },
                   ].map(a => (
-                    <div key={a.name} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
-                      <p style={{ fontWeight: 800, color: '#fff', fontSize: '.82rem' }}>{a.name}</p>
-                      <p style={{ ...M, fontSize: '.6rem', color: '#a78bfa', marginTop: 2 }}>{a.role}</p>
-                      <p style={{ fontSize: '.65rem', color: '#94a3b8', marginTop: 2 }}>{a.dept}</p>
-                      <p style={{ ...M, fontSize: '.58rem', color: '#67e8f9', marginTop: 3 }}>{a.email}</p>
+                    <div key={a.name} style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
+                      <p style={{ fontWeight: 800, color: '#fff', fontSize: '.88rem' }}>{a.name}</p>
+                      <p style={{ ...M, fontSize: '.64rem', color: '#a78bfa', marginTop: 2 }}>{a.role}</p>
+                      <p style={{ fontSize: '.68rem', color: '#94a3b8', marginTop: 2 }}>{a.dept}</p>
+                      <p style={{ ...M, fontSize: '.62rem', color: '#67e8f9', marginTop: 3 }}>{a.email}</p>
                     </div>
                   ))}
                 </div>

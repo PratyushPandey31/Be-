@@ -149,15 +149,13 @@ def create_presentation():
     p2.space_before = Pt(6)
 
     authors_info = [
-        ("Pratyush Pandey", "Lead Developer & SecOps", "1032230135@tcetmumbai.in", CYAN_ACCENT),
-        ("Neev Jain", "Full Stack Developer", "1032230132@tcetmumbai.in", BLUE_ACCENT),
-        ("Ankush Sahu", "Security & AI Research", "1032230146@tcetmumbai.in", PURPLE_ACC),
+        ("Pratyush Pandey", "Lead Researcher & Developer (Roll 34)", "1032230135@tcetmumbai.in", CYAN_ACCENT),
         ("Prof. Pramod Patil", "Project Guide & Asst. Prof.-CSE", "pramodpatil@tcetmumbai.in", GREEN_ACCENT)
     ]
 
-    card_w = 2.7
-    gap = 0.3
-    start_x = 0.8
+    card_w = 4.8
+    gap = 0.8
+    start_x = 1.4
     for i, (name, role, email, acc_col) in enumerate(authors_info):
         cx = start_x + i * (card_w + gap)
         c_shape = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(cx), Inches(3.9), Inches(card_w), Inches(2.2))

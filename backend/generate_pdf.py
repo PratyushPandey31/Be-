@@ -203,11 +203,9 @@ def build_story():
 
     ar = [[
         acell('Pratyush Pandey', 'Thakur College of Engineering<br/>and Technology, Mumbai', 'Dept. of CS&E (Cyber Security)', '1032230135@tcetmumbai.in'),
-        acell('Neev Jain',       'Thakur College of Engineering<br/>and Technology, Mumbai', 'Dept. of CS&E (Cyber Security)', '1032230132@tcetmumbai.in'),
-        acell('Ankush Sahu',     'Thakur College of Engineering<br/>and Technology, Mumbai', 'Dept. of CS&E (Cyber Security)', '1032230146@tcetmumbai.in'),
-        acell('Pramod Patil',    'Thakur College of Engineering<br/>and Technology, Mumbai', 'Project Guide &amp; Asst. Prof.-CSE', 'pramodpatil@tcetmumbai.in'),
+        acell('Prof. Pramod Patil', 'Thakur College of Engineering<br/>and Technology, Mumbai', 'Project Guide &amp; Asst. Prof.-CSE', 'pramodpatil@tcetmumbai.in'),
     ]]
-    at = Table(ar, colWidths=[BODY_W/4]*4)
+    at = Table(ar, colWidths=[BODY_W/2]*2)
     at.setStyle(TableStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),('VALIGN',(0,0),(-1,-1),'TOP'),
         ('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),0),
         ('LEFTPADDING',(0,0),(-1,-1),2),('RIGHTPADDING',(0,0),(-1,-1),2)]))

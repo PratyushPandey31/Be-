@@ -26,9 +26,7 @@
 
 | Author / Researcher | Roll No. | Institutional Email | Role |
 | :--- | :---: | :--- | :--- |
-| **Pratyush Pandey** | **34** | `1032230135@tcetmumbai.in` | Lead Author / AI Risk Engine & Architecture |
-| **Neev Jain** | **31** | `1032230132@tcetmumbai.in` | Co-Author / SecOps Pipeline & Attack Graph Engine |
-| **Ankush Sahu** | **45** | `1032230146@tcetmumbai.in` | Co-Author / Empirical Benchmarking & Evaluation |
+| **Pratyush Pandey** | **34** | `1032230135@tcetmumbai.in` | Lead Author & Researcher (Cyber Security) |
 | **Prof. Pramod Patil** | — | `pramodpatil@tcetmumbai.in` | Project Guide & Assistant Professor (CSE) |
 
 ---
@@ -250,7 +248,7 @@ python test_api.py
 ```bibtex
 @article{pandey2026cybershield,
   title={CyberShield AI: An Intelligent Vulnerability Assessment and Multi-Factor Risk Prioritization Framework Using Explainable AI},
-  author={Pandey, Pratyush and Jain, Neev and Sahu, Ankush and Patil, Pramod},
+  author={Pandey, Pratyush and Patil, Pramod},
   journal={IEEE Transactions on Information Forensics and Security},
   volume={19},
   pages={1042--1056},
