@@ -37,7 +37,62 @@
 | 🎯 **[4-Page Accuracy Audit Report](CyberShield_vs_Nessus_OpenVAS_Accuracy_Report.pdf)** | `PDF (4 Pages)` | Quantitative benchmark vs. Tenable Nessus Pro & Greenbone OpenVAS |
 | 📄 **[7-Page IEEE Research Paper](CyberShield_AI_IEEE_Research_Paper.pdf)** | `PDF (7 Pages)` | Peer-reviewed research paper with 24 academic citations |
 | 🤖 **[GPTZero 20% Originality Report](CyberShield_AI_AI_Detection_Report.pdf)** | `PDF (9 Pages)` | Official academic AI detection and plagiarism verification |
-| 📊 **[Final Project Presentation Slides](CyberShield_AI_Presentation.pptx)** | `PPTX (15 Slides)` | Complete defense presentation with architectural diagrams |
+| 📊 **[Final Project Presentation Slides](CyberShield_AI_Presentation.pptx)** | `PPTX (13 Slides)` | Complete defense presentation with architectural diagrams |
+
+<br/>
+
+---
+
+## 📸 CyberShield AI Glassmorphic CyberOps UI Showcase
+
+### 1. 🌐 Executive CyberOps Telemetry Dashboard
+*Real-time active discovery telemetry across 10 monitored enterprise nodes, average system risk index (77.9/100), automated scan triggers, and live CVE distribution.*
+
+![CyberShield AI Executive Posture Dashboard](docs/screenshots/01_dashboard.png)
+
+<br/>
+
+### 2. 🔬 Interactive Real-World Attack Scenario Visualizer (IEEE Evaluation)
+*Clickable real-world exploit scenario engine (Log4Shell, Citrix Bleed, PrintNightmare, FortiOS VPN, False Alarm) with live 3-way scanner showdown, SHAP XAI feature bars, and 1-click remediation scripts.*
+
+![CyberShield AI IEEE Evaluation & Attack Scenario Visualizer](docs/screenshots/05_ieee_evaluation_visualizer.png)
+
+<br/>
+
+### 3. 🥊 Scanner Pipeline: Beat Real Tools (Nessus vs. OpenVAS)
+*Real-time 6-stage scanner pipeline with head-to-head empirical triage showdown proving 99.4% Precision vs. 34.2% Nessus and 31.5% OpenVAS.*
+
+![CyberShield AI Scanner Showdown Tab](docs/screenshots/04_scanner_showdown.png)
+
+<br/>
+
+### 4. ⚡ Multi-Factor AI Risk Prioritizer & Dynamic Weight Engine
+*Composite multi-factor risk scoring engine fusing CVSS v3.1, FIRST.org EPSS v3.1, dynamic business criticality ($W_{\text{crit}}$), perimeter exposure ($W_{\text{exp}}$), and exploit PoC multipliers.*
+
+![CyberShield AI Risk Prioritization Studio](docs/screenshots/03_risk_prioritizer.png)
+
+<br/>
+
+### 5. 🤖 Autonomous AI SecOps Copilot Drawer
+*Context-aware natural language assistant generating tailored 4-stage containment playbooks (WAF drop rules, JVM flags, package downgrade) and 1-click automated database remediation.*
+
+![CyberShield AI Copilot Assistant](docs/screenshots/07_ai_copilot.png)
+
+<br/>
+
+### 6. ◈ Zero-Trust Asset Inventory & Topology Map
+*Enterprise asset management catalog tracking operating systems, IP subnets, exposure zones (Internet, DMZ, Internal), and business criticality tiers.*
+
+![CyberShield AI Asset Inventory](docs/screenshots/02_asset_inventory.png)
+
+<br/>
+
+### 7. 📑 Executive Audit & Compliance Report Generator
+*Autonomous PDF reporting engine generating IEEE-grade audit reports, CISO threat synthesis summaries, and regulatory compliance matrices.*
+
+![CyberShield AI Report Generator](docs/screenshots/06_report_generator.png)
+
+<br/>
 
 ---
 
@@ -97,6 +152,22 @@ Empirical evaluation conducted across **50 live enterprise nodes and 200 real-wo
 
 ---
 
+## 📑 4-Page Accuracy Benchmark Audit Report Preview
+
+<div align="center">
+
+| Page 1: 4-Way Comparison Matrix | Page 2: Real Threat Showdown |
+| :---: | :---: |
+| <img src="docs/screenshots/accuracy_audit_page_1.png" width="400"/> | <img src="docs/screenshots/accuracy_audit_page_2.png" width="400"/> |
+
+| Page 3: Enterprise Financial ROI | Page 4: Official Sign-off |
+| :---: | :---: |
+| <img src="docs/screenshots/accuracy_audit_page_3.png" width="400"/> | <img src="docs/screenshots/accuracy_audit_page_4.png" width="400"/> |
+
+</div>
+
+---
+
 ## 📐 Mathematical Formulation & SHAP Explainable AI
 
 ### 1. Composite Multi-Factor Risk Equation:
@@ -111,48 +182,6 @@ Where:
 
 ### 2. SHAP Additive Feature Decomposition:
 $$\phi_{\text{CVSS}} \; (38\%) \;+\; \phi_{\text{EPSS}} \; (26\%) \;+\; \phi_{W_{\text{crit}}} \; (18\%) \;+\; \phi_{W_{\text{exp}}} \; (10\%) \;+\; \phi_{M_{\text{exploit}}} \; (8\%) = 100.0\%$$
-
----
-
-## 🖥️ Glassmorphic CyberOps UI Features
-
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│  🛡️ CyberShield AI   [Dashboard]  [🤖 AI Copilot]  [Asset Inventory]  [Scanner]  [IEEE Evaluation]│
-├──────────────────────────────────────────────────────────────────────────────────────────────────┤
-│  🏆 AI ACCURACY SUPERIORITY VERIFIED • 10,000x Triage Precision Gain vs. Nessus & OpenVAS       │
-│  [📥 Download Accuracy Benchmark PDF]                                                            │
-│                                                                                                  │
-│  ┌─────────────────────────┐ ┌─────────────────────────┐ ┌────────────────────────────────────┐  │
-│  │     CYBERSHIELD AI      │ │   TENABLE NESSUS PRO    │ │        GREENBONE OPENVAS           │  │
-│  │     99.4% ACCURACY      │ │     34.2% ACCURACY      │ │          31.5% ACCURACY            │  │
-│  │  0.4% False Positives   │ │  45.2% False Positives  │ │       48.9% False Positives        │  │
-│  │      8.5m Auto-Fix      │ │       Static CVSS       │ │             Raw Logs               │  │
-│  └─────────────────────────┘ └─────────────────────────┘ └────────────────────────────────────┘  │
-│                                                                                                  │
-│  🥊 LIVE SCANNER SHOWDOWN: CVE-2021-44228 (Log4Shell) on PROD-WEB-SERVER-01 (10.0.1.50)         │
-│  • Nessus: Rank #38 (Delayed 48h)  |  • OpenVAS: Rank #42 (Noise Dump)  |  • Ours: Rank #1 (100) │
-│  [⎘ Copy Patch]  [⚡ 1-Click Auto-Fix in Production]                                              │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 🤖 1. Autonomous AI SecOps Copilot (`AICopilotDrawer.jsx`)
-- **Multi-Turn Natural Language Interface**: Understands English, Hindi, and Hinglish queries (e.g. *"Fix Log4Shell"*, *"Attack path dikhao"*, *"Nessus se accuracy kitni achhi hai"*).
-- **Incident Playbooks**: Dispatches targeted 4-stage containment and remediation code for Log4Shell, Citrix Bleed, PrintNightmare, FortiOS, and XZ Utils.
-- **1-Click Auto-Patch Execution**: Resolves open vulnerabilities in the live SQLite database with real-time UI synchronization.
-
-### 🥊 2. Scanner Pipeline with Live Showdown (`ScannerPanel.jsx`)
-- **6-Stage Real-Time Pipeline**: Nmap host discovery $\rightarrow$ SYN stealth port scanning $\rightarrow$ OpenVAS NVT signature matching $\rightarrow$ NIST NVD API enrichment $\rightarrow$ FIRST.org EPSS ingestion $\rightarrow$ CyberShield AI multi-factor scoring.
-- **Side-by-Side Triage Comparison**: Shows exact rank differences between Nessus Pro, OpenVAS GVM, and CyberShield AI.
-
-### 🔬 3. Clickable Real-World Scenario Visualizer (`EvaluationPanel.jsx`)
-- **5 Interactive Exploit Scenarios**:
-  - 🔥 **Log4Shell (CVE-2021-44228)**: Ingress Gateway RCE
-  - 🛡️ **Citrix Bleed (CVE-2023-4966)**: DMZ Session Token Leak
-  - 👑 **PrintNightmare (CVE-2021-34527)**: Active Directory Domain Controller Escalation
-  - ⚡ **FortiOS VPN (CVE-2024-21762)**: Perimeter Firewall Zero-Day
-  - 🎯 **Air-Gapped Sandbox (CVE-2023-4863)**: False Alarm Suppression
-- Clickable cards dynamically update the **3-Way Scanner Box**, **SHAP Factor Breakdown Bars**, **Mathematical Step Proof**, and **Remediation Scripts**.
 
 ---
 
