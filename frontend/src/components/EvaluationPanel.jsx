@@ -136,7 +136,7 @@ function MetricGauge({ label, score, maxScore = 100, unit = '%', color = '#00f0f
   );
 }
 
-export default function EvaluationPanel({ metrics }) {
+export default function EvaluationPanel({ metrics, onOpenPitchPad }) {
   const [activeTab, setActiveTab] = useState('scanner_comparison');
   const [selectedScenario, setSelectedScenario] = useState('log4shell');
   const [copiedScenarioCode, setCopiedScenarioCode] = useState(false);
@@ -381,6 +381,21 @@ export default function EvaluationPanel({ metrics }) {
           </div>
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {onOpenPitchPad && (
+              <button
+                className="btn btn-sm"
+                onClick={onOpenPitchPad}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(234,88,12,0.35))',
+                  border: '1.5px solid #f59e0b',
+                  color: '#fbbf24',
+                  fontWeight: 900,
+                  boxShadow: '0 0 16px rgba(245,158,11,0.35)'
+                }}
+              >
+                🎓 Faculty Pitch Pad (Viva Guide)
+              </button>
+            )}
             <button className="btn btn-ghost btn-sm" onClick={() => setShowPaperModal(true)}>
               📖 Read Full Paper
             </button>

@@ -23,7 +23,7 @@ function LiveClock() {
   );
 }
 
-export default function Navbar({ tab, setTab, online, stats, scanning, user, onOpenAuth, onLogout }) {
+export default function Navbar({ tab, setTab, online, stats, scanning, user, onOpenAuth, onLogout, onOpenPitchPad }) {
   const crit = stats?.threat_distribution?.CRITICAL || 0;
   const avg  = stats?.average_system_risk || 0;
   const rCol = avg >= 80 ? '#ef4444' : avg >= 60 ? '#f97316' : avg >= 40 ? '#f59e0b' : '#10b981';
@@ -78,6 +78,30 @@ export default function Navbar({ tab, setTab, online, stats, scanning, user, onO
 
         {/* User Auth Chip + Audit Download + Live Metrics */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {/* Glowing Faculty Defense Pitch Pad Button */}
+          <button
+            onClick={onOpenPitchPad}
+            className="btn btn-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(234,88,12,0.3))',
+              border: '1.5px solid #f59e0b',
+              color: '#fbbf24',
+              fontWeight: 900,
+              padding: '6px 14px',
+              borderRadius: 8,
+              fontSize: '.72rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              boxShadow: '0 0 16px rgba(245,158,11,0.35)',
+              animation: 'pulse 2s ease infinite'
+            }}
+            title="Open 30s Viva Pitch & Faculty Defense Cheat Sheet"
+          >
+            🎓 Faculty Pitch Pad
+          </button>
+
           <button
             onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
             className="btn btn-sm"

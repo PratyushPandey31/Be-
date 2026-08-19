@@ -94,6 +94,13 @@
 
 <br/>
 
+### 8. 🎓 Faculty Defense & Viva Pitch Pad
+*Interactive layman explanation guide with 30-second elevator pitch script, step-by-step concepts, real-world case comparisons, and top 6 faculty viva Q&A answers.*
+
+![CyberShield AI Faculty Defense & Viva Pitch Pad](docs/screenshots/08_faculty_pitch_pad.png)
+
+<br/>
+
 ---
 
 </div>

@@ -9,6 +9,7 @@ import ReportPanel from './components/ReportPanel';
 import XAIDrawer from './components/XAIDrawer';
 import AuthModal from './components/AuthModal';
 import AICopilotDrawer from './components/AICopilotDrawer';
+import FacultyPitchPadModal from './components/FacultyPitchPadModal';
 
 const API = 'http://127.0.0.1:8000/api';
 
@@ -39,6 +40,9 @@ export default function App() {
 
   // AI Copilot Drawer State
   const [showCopilot, setShowCopilot]   = useState(false);
+
+  // Faculty Defense Pitch Pad State
+  const [showPitchPad, setShowPitchPad] = useState(false);
 
   useEffect(() => {
     // Check saved user session in localStorage
@@ -98,6 +102,7 @@ export default function App() {
       <Navbar
         tab={tab} setTab={setTab} online={online} stats={stats} scanning={scanning}
         user={user} onOpenAuth={() => setShowAuthModal(true)} onLogout={handleLogout}
+        onOpenPitchPad={() => setShowPitchPad(true)}
       />
 
       <main style={s.main}>
@@ -113,7 +118,7 @@ export default function App() {
           </div>
         ) : (
           <div className="anim-fadeup">
-            {tab==='dashboard'  && <Dashboard  stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)}/>}
+            {tab==='dashboard'  && <Dashboard  stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)}/>}
             {tab==='aicopilot'  && <AICopilotDrawer API={API} onClose={()=>setTab('dashboard')}/>}
             {tab==='assets'     && <AssetManager assets={assets} onCreate={createAsset} risks={risks}/>}
             {tab==='prioritize' && <RiskPrioritizer risks={risks} onXai={setXai}/>}
@@ -125,7 +130,7 @@ export default function App() {
                 onScanEnd={()=>setScanning(false)}
               />
             )}
-            {tab==='evaluation' && <EvaluationPanel metrics={metrics}/>}
+            {tab==='evaluation' && <EvaluationPanel metrics={metrics} onOpenPitchPad={() => setShowPitchPad(true)}/>}
             {tab==='report'     && <ReportPanel stats={stats} risks={risks} metrics={metrics}/>}
           </div>
         )}
@@ -171,6 +176,16 @@ export default function App() {
           onClose={() => setShowCopilot(false)}
         />
       )}
+
+      {/* Faculty Defense & Viva Pitch Pad Modal */}
+      <FacultyPitchPadModal
+        isOpen={showPitchPad}
+        onClose={() => setShowPitchPad(false)}
+        onNavigateTab={(targetTab) => {
+          setShowPitchPad(false);
+          setTab(targetTab);
+        }}
+      />
     </div>
   );
 }

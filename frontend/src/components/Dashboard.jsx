@@ -107,7 +107,7 @@ function ThreatRow({ item, i, goto }) {
   );
 }
 
-export default function Dashboard({ stats, risks, goto, onOpenCopilot }) {
+export default function Dashboard({ stats, risks, goto, onOpenCopilot, onOpenPitchPad }) {
   if (!stats) return (
     <div className="card" style={{ padding:80, textAlign:'center' }}>
       <div style={{ width:36,height:36,border:'3px solid rgba(0,240,255,0.2)',borderTopColor:'#00f0ff',borderRadius:'50%',animation:'spin .8s linear infinite',margin:'0 auto 14px' }}/>
@@ -176,6 +176,19 @@ export default function Dashboard({ stats, risks, goto, onOpenCopilot }) {
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button
+            onClick={onOpenPitchPad}
+            className="btn btn-sm"
+            style={{
+              padding: '10px 18px', background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(234,88,12,0.35))',
+              border: '1.5px solid #f59e0b', borderRadius: 10, color: '#fbbf24', fontWeight: 900,
+              fontSize: '.76rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+              boxShadow: '0 0 18px rgba(245,158,11,0.4)',
+              animation: 'pulse 2s ease infinite'
+            }}
+          >
+            🎓 Faculty Pitch Pad (Viva Guide)
+          </button>
           <button
             onClick={() => window.open('http://localhost:8000/api/report/benchmark-accuracy-pdf', '_blank')}
             className="btn btn-sm"
