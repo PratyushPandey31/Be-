@@ -60,7 +60,7 @@ function KPI({ label, value, sub, color, icon, delta }) {
 }
 
 /* ── Top threats row ── */
-function ThreatRow({ item, i, goto }) {
+function ThreatRow({ item, i, goto, onResolve }) {
   const tier = item.ai_risk.threat_tier;
   const tc = TC[tier];
   const score = item.ai_risk.risk_score;
@@ -98,16 +98,25 @@ function ThreatRow({ item, i, goto }) {
           <div className="rbar-fill" style={{ width:`${score}%`, background:`linear-gradient(90deg,${tc}70,${tc})` }}/>
         </div>
       </div>
-      <button onClick={()=>goto('prioritize')} style={{
-        padding:'7px 14px', borderRadius:8, border:`1px solid ${tc}40`,
-        background:`${tc}10`, color:tc, fontSize:'.72rem', fontFamily:"'JetBrains Mono',monospace",
-        cursor:'pointer', whiteSpace:'nowrap', fontWeight:600
-      }}>Analyze XAI →</button>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {onResolve && (
+          <button onClick={() => onResolve(item.finding_id, item)} style={{
+            padding:'7px 13px', borderRadius:8, border:'1px solid rgba(16,185,129,0.4)',
+            background:'rgba(16,185,129,0.12)', color:'#34d399', fontSize:'.72rem', fontFamily:"'JetBrains Mono',monospace",
+            cursor:'pointer', whiteSpace:'nowrap', fontWeight:700
+          }}>🛡️ Mitigate</button>
+        )}
+        <button onClick={()=>goto('prioritize')} style={{
+          padding:'7px 14px', borderRadius:8, border:`1px solid ${tc}40`,
+          background:`${tc}10`, color:tc, fontSize:'.72rem', fontFamily:"'JetBrains Mono',monospace",
+          cursor:'pointer', whiteSpace:'nowrap', fontWeight:600
+        }}>Analyze XAI →</button>
+      </div>
     </div>
   );
 }
 
-export default function Dashboard({ stats, risks, goto, onOpenCopilot, onOpenPitchPad }) {
+export default function Dashboard({ stats, risks, goto, onOpenCopilot, onOpenPitchPad, onResolve }) {
   if (!stats) return (
     <div className="card" style={{ padding:80, textAlign:'center' }}>
       <div style={{ width:36,height:36,border:'3px solid rgba(0,240,255,0.2)',borderTopColor:'#00f0ff',borderRadius:'50%',animation:'spin .8s linear infinite',margin:'0 auto 14px' }}/>
@@ -308,7 +317,7 @@ export default function Dashboard({ stats, risks, goto, onOpenCopilot, onOpenPit
             <button className="btn btn-ghost btn-sm" onClick={()=>goto('prioritize')}>View Full Matrix →</button>
           </div>
           <div style={{ padding:'14px 16px', display:'flex', flexDirection:'column', gap:9 }}>
-            {stats.top_urgent_risks.map((item, i) => <ThreatRow key={item.finding_id} item={item} i={i} goto={goto}/>)}
+            {stats.top_urgent_risks.map((item, i) => <ThreatRow key={item.finding_id} item={item} i={i} goto={goto} onResolve={onResolve}/>)}
           </div>
         </div>
 

@@ -10,6 +10,7 @@ import XAIDrawer from './components/XAIDrawer';
 import AuthModal from './components/AuthModal';
 import AICopilotDrawer from './components/AICopilotDrawer';
 import FacultyPitchPadModal from './components/FacultyPitchPadModal';
+import MitigationReportModal from './components/MitigationReportModal';
 
 const API = 'http://127.0.0.1:8000/api';
 
@@ -43,6 +44,10 @@ export default function App() {
 
   // Faculty Defense Pitch Pad State
   const [showPitchPad, setShowPitchPad] = useState(false);
+
+  // Mitigation Execution Mini Audit Report State
+  const [mitigationReport, setMitigationReport] = useState(null);
+  const [showMitigationModal, setShowMitigationModal] = useState(false);
 
   useEffect(() => {
     // Check saved user session in localStorage
@@ -78,12 +83,37 @@ export default function App() {
     return r.ok;
   };
 
-  const handleResolve = async (findingId) => {
-    const r = await fetch(`${API}/findings/${findingId}/status`, {
-      method:'PUT', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ status:'RESOLVED' })
-    });
-    if(r.ok) { setXai(null); fetchAll(); }
+  const handleResolve = async (findingId, findingData = null) => {
+    const currentFinding = findingData || risks.find(r => r.finding_id === findingId);
+    try {
+      const r = await fetch(`${API}/findings/${findingId}/status`, {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ status:'RESOLVED' })
+      });
+
+      const reportPayload = {
+        finding_id: findingId,
+        cve_id: currentFinding?.vulnerability?.cve_id || `Finding #${findingId}`,
+        title: currentFinding?.vulnerability?.title || 'Security Weakness Remediation',
+        asset_name: currentFinding?.asset?.name || 'Enterprise Node',
+        asset_ip: currentFinding?.asset?.ip || '10.0.x.x',
+        asset_exposure: currentFinding?.asset?.exposure || 'Perimeter Gateway',
+        asset_criticality: currentFinding?.asset?.criticality || 'Mission Critical',
+        previous_risk_score: currentFinding?.ai_risk?.risk_score || 95.0,
+        threat_tier: currentFinding?.ai_risk?.threat_tier || 'CRITICAL',
+        cvss: currentFinding?.vulnerability?.cvss || 9.8,
+        epss: currentFinding?.vulnerability?.epss || 0.95,
+        patch_script: currentFinding?.vulnerability?.patch_script || 'sudo systemctl restart security-daemon && sudo apt-get --only-upgrade update',
+        timestamp: new Date().toLocaleString()
+      };
+
+      setMitigationReport(reportPayload);
+      setShowMitigationModal(true);
+      setXai(null);
+      fetchAll();
+    } catch (e) {
+      console.error("Mitigation error:", e);
+    }
   };
 
   const handleLoginSuccess = (userData) => {
@@ -118,10 +148,10 @@ export default function App() {
           </div>
         ) : (
           <div className="anim-fadeup">
-            {tab==='dashboard'  && <Dashboard  stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)}/>}
-            {tab==='aicopilot'  && <AICopilotDrawer API={API} onClose={()=>setTab('dashboard')}/>}
+            {tab==='dashboard'  && <Dashboard stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)} onResolve={handleResolve} />}
+            {tab==='aicopilot'  && <AICopilotDrawer API={API} onClose={()=>setTab('dashboard')} onResolve={handleResolve} />}
             {tab==='assets'     && <AssetManager assets={assets} onCreate={createAsset} risks={risks}/>}
-            {tab==='prioritize' && <RiskPrioritizer risks={risks} onXai={setXai}/>}
+            {tab==='prioritize' && <RiskPrioritizer risks={risks} onXai={setXai} onResolve={handleResolve} />}
             {tab==='scanner'    && (
               <ScannerPanel
                 API={API}
@@ -174,6 +204,7 @@ export default function App() {
         <AICopilotDrawer
           API={API}
           onClose={() => setShowCopilot(false)}
+          onResolve={handleResolve}
         />
       )}
 
@@ -185,6 +216,13 @@ export default function App() {
           setShowPitchPad(false);
           setTab(targetTab);
         }}
+      />
+
+      {/* Mitigation Execution Mini Audit Report Modal Popup */}
+      <MitigationReportModal
+        isOpen={showMitigationModal}
+        onClose={() => setShowMitigationModal(false)}
+        reportData={mitigationReport}
       />
     </div>
   );

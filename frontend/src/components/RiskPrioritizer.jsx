@@ -5,7 +5,7 @@ const TC = { CRITICAL:'#ef4444', HIGH:'#f97316', MEDIUM:'#f59e0b', LOW:'#10b981'
 const TIERS = ['ALL','CRITICAL','HIGH','MEDIUM','LOW'];
 
 /* ─── Expandable Detail Row ─── */
-function DetailRow({ r }) {
+function DetailRow({ r, onResolve }) {
   const shap = Object.entries(r.ai_risk.shap_attribution);
   const maxW  = Math.max(...shap.map(([,v])=>v));
   return (
@@ -67,6 +67,32 @@ function DetailRow({ r }) {
               <div style={{ marginTop:10, ...M, fontSize:'.64rem', color:'#64748b' }}>
                 <p>Priority: <span style={{ color:'#fbbf24', fontWeight:700 }}>{r.ai_risk.priority_code}</span></p>
               </div>
+
+              {onResolve && (
+                <button
+                  onClick={() => onResolve(r.finding_id, r)}
+                  style={{
+                    marginTop: 10,
+                    width: '100%',
+                    padding: '8px 14px',
+                    borderRadius: 8,
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: '#fff',
+                    ...M,
+                    fontSize: '.72rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: '0 2px 12px rgba(16,185,129,.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6
+                  }}
+                >
+                  🛡️ Execute Patch &amp; Generate Audit Report →
+                </button>
+              )}
             </div>
           </div>
 
@@ -81,7 +107,7 @@ function DetailRow({ r }) {
   );
 }
 
-export default function RiskPrioritizer({ risks, onXai }) {
+export default function RiskPrioritizer({ risks, onXai, onResolve }) {
   const [tier, setTier]       = useState('ALL');
   const [minCvss, setMin]     = useState(0);
   const [q, setQ]             = useState('');
@@ -279,6 +305,13 @@ export default function RiskPrioritizer({ risks, onXai }) {
                             background:'rgba(0,240,255,0.07)', color:'#67e8f9',
                             ...M, fontSize:'.69rem', cursor:'pointer', whiteSpace:'nowrap', fontWeight:600
                           }}>🧠 Explain XAI</button>
+                          {onResolve && (
+                            <button onClick={()=>onResolve(r.finding_id, r)} style={{
+                              padding:'5px 12px', borderRadius:7, border:'1px solid rgba(16,185,129,0.4)',
+                              background:'rgba(16,185,129,0.12)', color:'#34d399',
+                              ...M, fontSize:'.69rem', cursor:'pointer', whiteSpace:'nowrap', fontWeight:700
+                            }}>🛡️ Mitigate</button>
+                          )}
                           <button onClick={()=>toggle(r.finding_id)} style={{
                             padding:'5px 12px', borderRadius:7, border:'1px solid rgba(255,255,255,0.1)',
                             background:'rgba(255,255,255,0.04)', color:'#94a3b8',
@@ -287,7 +320,7 @@ export default function RiskPrioritizer({ risks, onXai }) {
                         </div>
                       </td>
                     </tr>
-                    {isExp && <DetailRow r={r}/>}
+                    {isExp && <DetailRow r={r} onResolve={onResolve}/>}
                   </React.Fragment>
                 );
               })}

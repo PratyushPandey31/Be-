@@ -19,7 +19,7 @@ const INITIAL_MESSAGES = [
   }
 ];
 
-export default function AICopilotDrawer({ API, onClose }) {
+export default function AICopilotDrawer({ API, onClose, onResolve }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -113,6 +113,9 @@ export default function AICopilotDrawer({ API, onClose }) {
             text: `Finding #${findingId} has been autonomously patched and contained. Host network interface re-verified and risk score updated in database.`
           }
         ]);
+        if (onResolve) {
+          onResolve(findingId);
+        }
       }
     } catch (e) {}
   };

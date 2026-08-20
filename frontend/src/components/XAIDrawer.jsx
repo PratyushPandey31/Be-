@@ -52,7 +52,7 @@ export default function XAIDrawer({ risk, onClose, onResolve }) {
   const maxW = Math.max(...shap.map(([,v])=>v));
 
   const copy = () => { navigator.clipboard.writeText(vulnerability.patch_script); setCopied(true); setTimeout(()=>setCopied(false),2000); };
-  const doResolve = async () => { setResolving(true); await onResolve?.(risk.finding_id); setResolving(false); };
+  const doResolve = async () => { setResolving(true); await onResolve?.(risk.finding_id, risk); setResolving(false); };
 
   const tabs = [
     { id:'overview',    label:'📊 Overview' },
@@ -323,11 +323,13 @@ export default function XAIDrawer({ risk, onClose, onResolve }) {
 
               {onResolve && (
                 <button onClick={doResolve} disabled={resolving} className="btn" style={{
-                  width:'100%', justifyContent:'center', padding:'12px 20px',
+                  width:'100%', justifyContent:'center', padding:'13px 20px',
                   background:'linear-gradient(135deg, #10b981, #059669)',
-                  color:'#fff', boxShadow:'0 4px 16px rgba(16,185,129,.3)', fontSize:'.88rem'
+                  color:'#fff', fontWeight: 900,
+                  boxShadow:'0 4px 20px rgba(16,185,129,.4)', fontSize:'.86rem',
+                  display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer'
                 }}>
-                  {resolving ? '…Updating Status' : '✓ Mark Finding as Resolved / Mitigated'}
+                  {resolving ? '…Executing Remediation' : '🛡️ Execute Autonomous Mitigation & View Audit Report ➔'}
                 </button>
               )}
             </>
