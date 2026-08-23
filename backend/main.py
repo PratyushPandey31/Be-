@@ -366,6 +366,116 @@ def ai_security_copilot(req: AICopilotRequest):
             )
         }
 
+    # ── 3B. Layman / Non-IT Executive Mode ──
+    elif any(k in p_lower for k in ["layman", "non-it", "non it", "simple", "manager", "boss", "samjhao", "aasan", "simple words"]):
+        return {
+            "status": "SUCCESS",
+            "type": "ASSISTANT_RESPONSE",
+            "title": "👔 ROBO AI Layman / Non-Technical Executive Briefing",
+            "summary": "Plain English & Hindi explanation for non-IT management, board members, and executives.",
+            "response": (
+                "### 👔 Simple Non-Technical Explanation (For Non-IT Executives & Leadership):
+
+"
+                "1. **Asli Problem Kya Hai? (The Real Risk):**
+"
+                "   - Hamari company ke **10 main computers (Servers & Database)** internet se jude hain.
+"
+                "   - Ek computer par purana software laga hai jiska lock kamzor hai (Log4Shell).
+"
+                "   - Agar koi hacker is darwaze se andar aa gaya, toh woh 3 steps me seedha hamare **Customer Database** tak pahunch kar saara data chura sakta hai.
+
+"
+                "2. **CyberShield AI / ROBO AI Ne Kya Kiya?**
+"
+                "   - ROBO AI ne hacker ke aane se **14 din pehle** hi is kamzori ko detect kar liya.
+"
+                "   - Bina server band kiye **1-Click Digital Shield** laga kar darwaza band kar diya.
+"
+                "   - Fake 'Honeypot' decoys laga diye jisme agar hacker haath lagaye toh turant block ho jata hai.
+
+"
+                "3. **Company Ka Fayda (Business & ROI):**
+"
+                "   - **Data Breach Nuksaan Bachaya:** ~$1.4 Million (₹11.8 Crore)
+"
+                "   - **Time Bachaya:** 94 ghante ka manual kaam sirf **8.5 minute** me poora hua.
+"
+                "   - **Government & Global Compliance:** 100% Pass (ISO 27001, GDPR, DPDP Act 2023, RBI CSF)."
+            )
+        }
+
+    # ── 3C. Buffer Overflow Deep Root Cause Analysis (RCA) ──
+    elif any(k in p_lower for k in ["buffer overflow", "memory", "disassembly", "rca", "root cause", "stack", "heap", "pointer"]):
+        return {
+            "status": "SUCCESS",
+            "type": "ASSISTANT_RESPONSE",
+            "title": "🔬 ROBO AI Deep Memory Forensics & Root Cause Analysis (RCA)",
+            "summary": "Low-level stack frame disassembly, memory register analysis, and heap bounds inspection.",
+            "response": (
+                "### 🔬 Low-Level Memory Forensics Breakdown (CWE-119 / CWE-787):
+
+"
+                "```assembly
+"
+                "; Vulnerable Function: netscaler_http_auth_parse()
+"
+                "0x7fff5fbff8a0:  push   %rbp
+"
+                "0x7fff5fbff8a1:  mov    %rsp, %rbp
+"
+                "0x7fff5fbff8a4:  sub    $0x200, %rsp          ; 512-byte stack buffer allocated
+"
+                "0x7fff5fbff8ab:  mov    0x10(%rbp), %rdi      ; User HTTP OpenID header input (up to 4096 bytes)
+"
+                "0x7fff5fbff8af:  callq  0x7fff5fbff920        ; memcpy() WITHOUT bounds check!
+"
+                "0x7fff5fbff8b4:  ; EIP/RIP Instruction Pointer overwritten with attacker payload 0x4141414141414141
+"
+                "```
+
+"
+                "**Root Cause:** The HTTP parser copies unbounded user input into a fixed `512-byte` stack buffer without validating `strlen(header) <= 512`.
+"
+                "**ROBO AI Hardening:** Enforced boundary check `safe_memcpy_s()` and turned on kernel ASLR + Stack Canaries (`-fstack-protector-strong`)."
+            )
+        }
+
+    # ── 3D. Ransomware Lateral Attack Simulation ──
+    elif any(k in p_lower for k in ["ransomware", "lockbit", "encrypt", "blackcat", "extortion"]):
+        return {
+            "status": "SUCCESS",
+            "type": "ATTACK_PATH_GRAPH",
+            "title": "🚨 ROBO AI Simulated Ransomware Lateral Progression (LockBit 3.0 Vector)",
+            "summary": "Simulated multi-tier ransomware propagation from DMZ gateway to Active Directory DC and Postgres DB.",
+            "attack_nodes": [
+                {
+                    "step": 1,
+                    "asset": "CORP-CITRIX-GW-01 (10.0.4.12 • DMZ Edge)",
+                    "vector": "CVE-2023-4966 (Citrix Bleed Session Hijack - EPSS 96.1%)",
+                    "impact": "Ransomware operator establishes initial persistence via stolen VPN token.",
+                    "probability": "96.1%"
+                },
+                {
+                    "step": 2,
+                    "asset": "FIN-WIN-DC-01 (172.16.0.5 • Core Active Directory)",
+                    "vector": "Pass-the-Hash / NTLM Relay via PrintNightmare (CVE-2021-34527)",
+                    "impact": "Group Policy Object (GPO) hijacked to push ransomware binary to all domain endpoints.",
+                    "probability": "91.8%"
+                },
+                {
+                    "step": 3,
+                    "asset": "PROD-DB-POSTGRES-01 (10.0.2.105 • Encrypted Vault)",
+                    "vector": "Volume Shadow Copy Deletion (vssadmin delete shadows /all /quiet) & ChaCha20 Encryption",
+                    "impact": "Total database encryption and double-extortion ransom note dropped.",
+                    "probability": "84.3%"
+                }
+            ],
+            "containment_recommendation": "1. Deploy emergency SMB Port 445 network block between DMZ and Internal Core.
+2. Enable Immutable Volume Snapshots with air-gapped backups.
+3. Execute ROBO AI Zero-Trust Micro-Segmentation policy PR-03 on FIN-WIN-DC-01."
+        }
+
     # ── 4. Attack Path Lateral Movement Traversal ──
     elif any(k in p_lower for k in ["attack path", "lateral", "traversal", "graph", "chain", "hack", "movement"]):
         return {
