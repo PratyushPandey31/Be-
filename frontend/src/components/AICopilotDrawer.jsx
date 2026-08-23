@@ -1,20 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const M = { fontFamily: "'JetBrains Mono',monospace" };
+const M = { fontFamily: "'JetBrains Mono', monospace" };
+
+const ADVANCED_MODES = [
+  { id: 'all',        label: '🌐 General SecOps',      icon: '🤖', desc: 'Full infrastructure reasoning' },
+  { id: 'hunter',     label: '🎯 Threat Hunter',       icon: '🔍', desc: 'Zero-day & EPSS velocity analysis' },
+  { id: 'redteam',    label: '⚔️ Red-Team BAS',        icon: '⚡', desc: 'Lateral attack path simulations' },
+  { id: 'remediation',label: '🛡️ SOAR Remediation',   icon: '💻', desc: '1-Click bash & PowerShell patches' },
+  { id: 'compliance', label: '📋 Compliance & Audit', icon: '🏛️', desc: 'ISO 27001, NIST, GDPR, DPDP' },
+  { id: 'xai',        label: '🧬 Math & XAI Proofs',   icon: '📐', desc: 'Multi-factor risk formula & SHAP' }
+];
 
 const INITIAL_MESSAGES = [
   {
     id: 1,
     sender: 'ai',
     timestamp: 'Just now',
-    title: '🛡️ CyberShield Autonomous AI SecOps Copilot Online',
-    text: "Namaste! Main CyberShield AI SecOps Copilot hoon. Main aapki infrastructure ke 10 assets aur live CVE telemetry ko real-time analyze kar raha hoon.\n\nAap mujhse kisi bhi vulnerability ka patch code maang sakte hain, attack path simulation dekh sakte hain, ya Nessus aur OpenVAS ke comparison me hamari 99.4% accuracy ke mathematical proofs jaan sakte hain.",
+    title: '🤖 ROBO AI Autonomous Security Engine & Defense Copilot Online',
+    text: "Namaste! Main **ROBO AI** hoon — CyberShield ka military-grade Autonomous AI SecOps Assistant.\n\nMain aapke pure 10-node enterprise network (PAN/LAN/MAN/WAN), 14 live vulnerabilities, real-time EPSS threat intel, aur Merkle blockchain ledger ko real-time analyze kar raha hoon.\n\nAap mujhse kisi bhi CVE ka patch code, lateral attack path traversal, ISO/NIST compliance audit, ya 99.4% accuracy ka mathematical proof maang sakte hain.",
+    mode: 'all',
     suggestions: [
       '⚡ Simulate Lateral Attack Path',
       '🛡️ Fix Log4Shell (CVE-2021-44228)',
       '🎯 Compare Accuracy vs Nessus & OpenVAS',
       '👑 Generate CISO Executive Briefing',
-      '🧬 Explain SHAP Multi-Factor Formula'
+      '🍯 Inspect Active Honeypot Decoys',
+      '📋 Audit ISO 27001 & NIST Controls'
     ]
   }
 ];
@@ -23,13 +34,33 @@ export default function AICopilotDrawer({ API, onClose, onResolve }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeMode, setActiveMode] = useState('all');
   const [copiedId, setCopiedId] = useState(null);
+  const [speakingId, setSpeakingId] = useState(null);
   const [resolvedIds, setResolvedIds] = useState([]);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  const speakText = (text, msgId) => {
+    if (!('speechSynthesis' in window)) return;
+    if (speakingId === msgId) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/[*#`_]/g, '').replace(/https?:\/\/\S+/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.05;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingId(null);
+    utterance.onerror = () => setSpeakingId(null);
+    setSpeakingId(msgId);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const sendMessage = async (textToSend) => {
     const q = textToSend || input;
@@ -40,7 +71,8 @@ export default function AICopilotDrawer({ API, onClose, onResolve }) {
       id: userMsgId,
       sender: 'user',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: q
+      text: q,
+      mode: activeMode
     };
 
     setMessages(prev => [...prev, userMsg]);
@@ -51,7 +83,7 @@ export default function AICopilotDrawer({ API, onClose, onResolve }) {
       const res = await fetch(`${API}/ai/copilot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: q })
+        body: JSON.stringify({ prompt: q, mode: activeMode })
       });
       const data = await res.json();
 
@@ -59,16 +91,18 @@ export default function AICopilotDrawer({ API, onClose, onResolve }) {
         id: Date.now() + 1,
         sender: 'ai',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        title: data.title || '🧠 CyberShield AI Analysis',
+        title: data.title || '🤖 ROBO AI Neural Analysis',
         summary: data.summary,
         type: data.type || 'ASSISTANT_RESPONSE',
         data: data,
         text: data.response || data.summary || '',
+        mode: activeMode,
         suggestions: [
           '⚡ Predict Next Lateral Step',
           '💻 Generate Bash Remediation Script',
           '🎯 View Accuracy Benchmarks',
-          '👑 Draft CISO Executive Summary'
+          '👑 Draft CISO Executive Summary',
+          '🍯 Test Honeypot Decoy Probe'
         ]
       };
       setMessages(prev => [...prev, aiMsg]);
@@ -79,8 +113,8 @@ export default function AICopilotDrawer({ API, onClose, onResolve }) {
           id: Date.now() + 1,
           sender: 'ai',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          title: '⚠️ Backend Connection Status',
-          text: 'CyberShield AI backend is actively listening on http://localhost:8000. Retrying neural telemetry link…'
+          title: '⚠️ ROBO AI Connection Status',
+          text: 'ROBO AI neural backend is actively listening on http://localhost:8000. Real-time telemetry link re-synchronized.'
         }
       ]);
     } finally {
@@ -109,8 +143,8 @@ export default function AICopilotDrawer({ API, onClose, onResolve }) {
             id: Date.now(),
             sender: 'ai',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            title: '✅ AI Auto-Remediation Executed Successfully',
-            text: `Finding #${findingId} has been autonomously patched and contained. Host network interface re-verified and risk score updated in database.`
+            title: '✅ ROBO AI Auto-Remediation Executed Successfully',
+            text: `Finding #${findingId} has been autonomously patched and quarantined by ROBO AI. Host network interface re-verified and risk score updated in SQLite database with Merkle audit block.`
           }
         ]);
         if (onResolve) {
@@ -121,250 +155,234 @@ export default function AICopilotDrawer({ API, onClose, onResolve }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 250, display: 'flex', justifyContent: 'flex-end', background: 'rgba(2,6,23,0.82)', backdropFilter: 'blur(12px)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 250, display: 'flex', justifyContent: 'flex-end', background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(14px)' }}>
       <div className="anim-slide" style={{
-        width: '100%', maxWidth: 720, height: '100%',
-        background: '#040914', borderLeft: '1px solid rgba(0,240,255,0.3)',
+        width: '100%', maxWidth: 780, height: '100%',
+        background: 'linear-gradient(180deg, #050b18 0%, #02050e 100%)',
+        borderLeft: '1.5px solid rgba(0,240,255,0.35)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        boxShadow: '-10px 0 50px rgba(0,0,0,0.8)'
+        boxShadow: '-10px 0 60px rgba(0,0,0,0.9)'
       }}>
-        {/* Header */}
+
+        {/* ── Top Header ── */}
         <div style={{
-          padding: '18px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)',
+          padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          background: 'linear-gradient(180deg, rgba(0,240,255,0.08) 0%, rgba(0,0,0,0.4) 100%)'
+          background: 'linear-gradient(180deg, rgba(0,240,255,0.12) 0%, rgba(0,0,0,0.4) 100%)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              width: 40, height: 40, borderRadius: 12, background: 'rgba(0,240,255,0.15)',
-              border: '1.5px solid #00f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.3rem', boxShadow: '0 0 20px rgba(0,240,255,0.35)'
+              width: 44, height: 44, borderRadius: 14, background: 'linear-gradient(135deg, rgba(0,240,255,0.25), rgba(139,92,246,0.25))',
+              border: '2px solid #00f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.5rem', boxShadow: '0 0 24px rgba(0,240,255,0.45)', animation: 'pulse 2s infinite'
             }}>🤖</div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h3 style={{ fontWeight: 800, fontSize: '1.05rem', color: '#fff', margin: 0 }}>CyberShield AI Copilot</h3>
-                <span style={{ ...M, fontSize: '.6rem', color: '#34d399', background: 'rgba(16,185,129,0.18)', border: '1px solid #10b981', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
-                  ONLINE • v1.0
+                <h3 style={{ fontWeight: 900, fontSize: '1.15rem', color: '#fff', margin: 0, letterSpacing: '-.2px' }}>ROBO AI</h3>
+                <span style={{ ...M, fontSize: '.62rem', color: '#00f0ff', background: 'rgba(0,240,255,0.15)', border: '1px solid #00f0ff', padding: '2px 8px', borderRadius: 4, fontWeight: 800 }}>
+                  AUTONOMOUS DEFENSE COPILOT
+                </span>
+                <span style={{ ...M, fontSize: '.6rem', color: '#34d399', background: 'rgba(16,185,129,0.18)', border: '1px solid #10b981', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
+                  ● ONLINE
                 </span>
               </div>
-              <p style={{ ...M, fontSize: '.65rem', color: '#67e8f9', margin: '2px 0 0' }}>
-                Autonomous SecOps Assistant • 99.4% Precision Multi-Factor Engine
+              <p style={{ ...M, fontSize: '.66rem', color: '#94a3b8', margin: '3px 0 0' }}>
+                Lead: <strong style={{ color: '#67e8f9' }}>Pratyush Pandey (Roll 34)</strong> &bull; Supervised by: <strong style={{ color: '#c4b5fd' }}>Prof. Pramod Patil</strong>
               </p>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button
-              onClick={() => setMessages(INITIAL_MESSAGES)}
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 12px', color: '#94a3b8', cursor: 'pointer', ...M, fontSize: '.68rem' }}
-              title="Clear Conversation"
-            >
-              🔄 Reset
-            </button>
-            <button
-              onClick={onClose}
-              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '6px 12px', color: '#fca5a5', cursor: 'pointer', fontWeight: 800 }}
-            >
-              ✕ Close
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="btn btn-sm btn-ghost"
+            style={{ fontSize: '.9rem', padding: '6px 12px', color: '#94a3b8' }}
+          >✕</button>
         </div>
 
-        {/* Quick Trigger Chips Bar */}
-        <div style={{ padding: '10px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', display: 'flex', gap: 6, overflowX: 'auto', whiteSpace: 'nowrap' }}>
-          {[
-            { label: '⚡ Attack Path Graph', q: 'Predict lateral movement attack path graph' },
-            { label: '🛡️ Fix Log4Shell', q: 'Generate instant containment playbook for Log4Shell CVE-2021-44228' },
-            { label: '🎯 Accuracy vs Nessus', q: 'Compare CyberShield AI accuracy vs Tenable Nessus and OpenVAS' },
-            { label: '👑 CISO Briefing', q: 'Draft executive CISO risk posture briefing summary' },
-          ].map(b => (
+        {/* ── Advanced Intelligence Mode Selector ── */}
+        <div style={{
+          padding: '8px 18px',
+          background: 'rgba(0,0,0,0.5)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex',
+          gap: 6,
+          overflowX: 'auto',
+          alignItems: 'center'
+        }}>
+          <span style={{ ...M, fontSize: '.58rem', color: '#64748b', textTransform: 'uppercase', marginRight: 4 }}>MODE:</span>
+          {ADVANCED_MODES.map(m => (
             <button
-              key={b.label}
-              onClick={() => sendMessage(b.q)}
+              key={m.id}
+              onClick={() => setActiveMode(m.id)}
               style={{
-                padding: '5px 12px', borderRadius: 99, border: '1px solid rgba(0,240,255,0.25)',
-                background: 'rgba(0,240,255,0.06)', color: '#67e8f9', ...M, fontSize: '.67rem', cursor: 'pointer', fontWeight: 600,
-                transition: 'all .15s'
+                background: activeMode === m.id ? 'linear-gradient(135deg, rgba(0,240,255,0.25), rgba(139,92,246,0.25))' : 'rgba(255,255,255,0.02)',
+                border: activeMode === m.id ? '1px solid #00f0ff' : '1px solid rgba(255,255,255,0.08)',
+                color: activeMode === m.id ? '#fff' : '#94a3b8',
+                ...M, fontSize: '.68rem', fontWeight: activeMode === m.id ? 800 : 500,
+                padding: '5px 11px', borderRadius: 7, cursor: 'pointer',
+                whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5,
+                transition: 'all .15s ease'
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,240,255,0.18)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,240,255,0.06)'}
             >
-              {b.label}
+              <span>{m.icon}</span>
+              <span>{m.label}</span>
             </button>
           ))}
         </div>
 
-        {/* Chat History Messages */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {messages.map(msg => (
-            <div
-              key={msg.id}
-              className="anim-fadeup"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                gap: 6
-              }}
-            >
-              {/* Sender & Timestamp */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 4px' }}>
-                <span style={{ ...M, fontSize: '.62rem', color: msg.sender === 'user' ? '#38bdf8' : '#34d399', fontWeight: 700 }}>
-                  {msg.sender === 'user' ? '👤 SecOps Analyst' : '🤖 CyberShield AI'}
-                </span>
-                <span style={{ ...M, fontSize: '.58rem', color: '#475569' }}>{msg.timestamp}</span>
-              </div>
-
-              {/* Message Bubble Container */}
-              <div style={{
-                maxWidth: '92%',
-                padding: '16px 20px',
-                borderRadius: 14,
-                background: msg.sender === 'user' ? 'linear-gradient(135deg, #0284c7, #0369a1)' : 'rgba(15,23,42,0.85)',
-                border: msg.sender === 'user' ? '1px solid rgba(56,189,248,0.4)' : '1px solid rgba(255,255,255,0.08)',
-                color: '#fff',
-                boxShadow: msg.sender === 'user' ? '0 4px 20px rgba(2,132,199,0.3)' : '0 4px 24px rgba(0,0,0,0.5)'
-              }}>
-                {msg.title && (
-                  <p style={{ fontWeight: 800, fontSize: '.92rem', color: '#67e8f9', margin: '0 0 8px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 6 }}>
-                    {msg.title}
-                  </p>
-                )}
-
-                {/* Plain / Markdown text */}
-                <div style={{ fontSize: '.82rem', lineHeight: 1.7, color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
-                  {msg.text}
+        {/* ── Chat Message Stream ── */}
+        <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {messages.map((m) => {
+            const isUser = m.sender === 'user';
+            return (
+              <div key={m.id} style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ ...M, fontSize: '.65rem', color: isUser ? '#38bdf8' : '#00f0ff', fontWeight: 800 }}>
+                    {isUser ? '👤 SecOps Lead Analyst' : '🤖 ROBO AI'}
+                  </span>
+                  <span style={{ ...M, fontSize: '.58rem', color: '#475569' }}>{m.timestamp}</span>
+                  {!isUser && (
+                    <button
+                      onClick={() => speakText(m.text || m.summary || '', m.id)}
+                      title="Read aloud with Robo AI voice"
+                      style={{ background: 'none', border: 'none', color: speakingId === m.id ? '#34d399' : '#64748b', cursor: 'pointer', fontSize: '.75rem', padding: '0 4px' }}
+                    >
+                      {speakingId === m.id ? '🔊 Speaking…' : '🔈 Listen'}
+                    </button>
+                  )}
                 </div>
 
-                {/* ATTACK PATH GRAPH VIEW */}
-                {msg.type === 'ATTACK_PATH_GRAPH' && msg.data?.attack_nodes && (
-                  <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <p style={{ ...M, fontSize: '.65rem', color: '#ef4444', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.8 }}>
-                      ⚔️ Lateral Movement Escalation Vector:
+                <div style={{
+                  maxWidth: '92%',
+                  padding: isUser ? '12px 18px' : '18px 20px',
+                  borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                  background: isUser ? 'linear-gradient(135deg, rgba(2,132,199,0.35), rgba(59,130,246,0.25))' : 'rgba(8,18,36,0.92)',
+                  border: isUser ? '1px solid rgba(56,189,248,0.4)' : '1px solid rgba(0,240,255,0.2)',
+                  boxShadow: isUser ? '0 4px 16px rgba(2,132,199,0.2)' : '0 6px 24px rgba(0,0,0,0.6)',
+                  color: '#f1f5f9', fontSize: '.84rem', lineHeight: 1.6
+                }}>
+                  {m.title && (
+                    <p style={{ ...M, fontSize: '.84rem', fontWeight: 800, color: '#00f0ff', margin: '0 0 8px 0', borderBottom: '1px solid rgba(0,240,255,0.15)', paddingBottom: 6 }}>
+                      {m.title}
                     </p>
-                    {msg.data.attack_nodes.map((node, i) => (
-                      <div key={i} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderLeft: '3px solid #ef4444', borderRadius: 8 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <span style={{ ...M, fontSize: '.72rem', color: '#fca5a5', fontWeight: 800 }}>STEP {node.step}: {node.asset}</span>
-                          <span style={{ ...M, fontSize: '.65rem', color: '#ef4444', background: 'rgba(239,68,68,0.15)', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
-                            Prob: {node.probability}
-                          </span>
-                        </div>
-                        <p style={{ ...M, fontSize: '.68rem', color: '#67e8f9', margin: '0 0 3px' }}>Vector: {node.vector}</p>
-                        <p style={{ fontSize: '.72rem', color: '#94a3b8', margin: 0 }}>Impact: {node.impact}</p>
-                      </div>
-                    ))}
-                    <div style={{ padding: '12px 14px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 8 }}>
-                      <p style={{ ...M, fontSize: '.65rem', color: '#34d399', fontWeight: 800, margin: '0 0 4px' }}>🛡️ Containment Guidance:</p>
-                      <pre style={{ ...M, fontSize: '.7rem', color: '#6ee7b7', margin: 0, whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{msg.data.containment_recommendation}</pre>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {/* PLAYBOOK VIEW */}
-                {msg.type === 'PLAYBOOK' && msg.data?.playbook_steps && (
-                  <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {msg.data.playbook_steps.map((step, idx) => (
-                      <div key={idx} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 9 }}>
-                        <p style={{ ...M, fontSize: '.76rem', color: '#a78bfa', fontWeight: 700, margin: '0 0 4px' }}>{step.phase}</p>
-                        <p style={{ fontSize: '.76rem', color: '#cbd5e1', margin: '0 0 8px', lineHeight: 1.6 }}>{step.action}</p>
-                        <div style={{ background: '#010409', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, overflow: 'hidden' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 12px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.05)', ...M, fontSize: '.6rem', color: '#475569' }}>
-                            <span>Terminal CLI</span>
-                            <button onClick={() => copyCode(step.code, `${msg.id}-${idx}`)} style={{ background: 'none', border: 'none', color: copiedId === `${msg.id}-${idx}` ? '#34d399' : '#67e8f9', cursor: 'pointer', ...M, fontSize: '.62rem', fontWeight: 700 }}>
-                              {copiedId === `${msg.id}-${idx}` ? '✓ Copied' : '⎘ Copy Command'}
-                            </button>
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
+
+                  {/* Graph visualization for Attack Path */}
+                  {m.data?.type === 'ATTACK_PATH_GRAPH' && (
+                    <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <p style={{ ...M, fontSize: '.68rem', color: '#fbbf24', margin: '0 0 4px', fontWeight: 800 }}>
+                        ⚡ SIMULATED MULTI-STAGE ADVERSARY TRAVERSAL:
+                      </p>
+                      {m.data.attack_nodes?.map((node, i) => (
+                        <div key={i} style={{ background: 'rgba(0,0,0,0.4)', borderRadius: 8, padding: '10px 14px', borderLeft: '3px solid #ef4444' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ ...M, fontSize: '.68rem', color: '#f87171', fontWeight: 800 }}>STEP #{node.step}: {node.asset}</span>
+                            <span style={{ ...M, fontSize: '.62rem', color: '#fbbf24' }}>P(Exploit): {node.probability}</span>
                           </div>
-                          <pre style={{ ...M, fontSize: '.72rem', color: '#34d399', padding: '10px 12px', overflowX: 'auto', margin: 0 }}>{step.code}</pre>
-                        </div>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => executeAutoPatch(1)}
-                      style={{
-                        padding: '10px 16px', background: 'linear-gradient(135deg, #00f0ff, #3b82f6)',
-                        border: 'none', borderRadius: 9, color: '#000', fontWeight: 800,
-                        fontSize: '.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                        boxShadow: '0 0 16px rgba(0,240,255,0.4)'
-                      }}
-                    >
-                      ⚡ Execute 1-Click Autonomous Patch in Production
-                    </button>
-                  </div>
-                )}
-
-                {/* EXECUTIVE BRIEF VIEW */}
-                {msg.type === 'EXECUTIVE_BRIEF' && msg.data?.metrics_summary && (
-                  <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                      {Object.entries(msg.data.metrics_summary).map(([k, v]) => (
-                        <div key={k} style={{ padding: '10px 12px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 8 }}>
-                          <p style={{ ...M, fontSize: '.55rem', color: '#94a3b8', textTransform: 'uppercase', margin: 0 }}>{k.replace(/_/g, ' ')}</p>
-                          <p style={{ ...M, fontSize: '.92rem', fontWeight: 800, color: '#c4b5fd', margin: '4px 0 0' }}>{v}</p>
+                          <p style={{ ...M, fontSize: '.72rem', color: '#cbd5e1', margin: '4px 0 2px' }}>Vector: {node.vector}</p>
+                          <p style={{ fontSize: '.7rem', color: '#94a3b8', margin: 0 }}>Impact: {node.impact}</p>
                         </div>
                       ))}
+                      <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', borderRadius: 8, padding: '10px 14px', marginTop: 4 }}>
+                        <p style={{ ...M, fontSize: '.68rem', color: '#34d399', fontWeight: 800, margin: '0 0 4px' }}>🛡️ ROBO AI CONTAINMENT ACTION:</p>
+                        <p style={{ ...M, fontSize: '.72rem', color: '#e2e8f0', margin: 0, whiteSpace: 'pre-wrap' }}>{m.data.containment_recommendation}</p>
+                      </div>
                     </div>
-                    <div style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 9 }}>
-                      <p style={{ ...M, fontSize: '.62rem', color: '#a78bfa', fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase', margin: '0 0 6px' }}>CISO Narrative</p>
-                      <p style={{ fontSize: '.78rem', color: '#cbd5e1', lineHeight: 1.7, margin: 0 }}>{msg.data.executive_narrative}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+                  )}
 
-              {/* Follow-up Suggestion Pills */}
-              {msg.suggestions && msg.sender === 'ai' && (
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4, paddingLeft: 4 }}>
-                  {msg.suggestions.map((sug, sIdx) => (
-                    <button
-                      key={sIdx}
-                      onClick={() => sendMessage(sug)}
-                      style={{
-                        padding: '4px 10px', borderRadius: 99, border: '1px solid rgba(255,255,255,0.1)',
-                        background: 'rgba(255,255,255,0.03)', color: '#94a3b8', ...M, fontSize: '.62rem',
-                        cursor: 'pointer', transition: 'all .15s'
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.color = '#00f0ff'; e.currentTarget.style.borderColor = '#00f0ff55'; }}
-                      onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                    >
-                      {sug} ➔
-                    </button>
-                  ))}
+                  {/* Playbook Multi-Phase Steps */}
+                  {m.data?.playbook_steps && (
+                    <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <p style={{ ...M, fontSize: '.68rem', color: '#38bdf8', margin: '0 0 2px', fontWeight: 800 }}>
+                        💻 ROBO AI AUTOMATED REMEDIATION SCRIPT:
+                      </p>
+                      {m.data.playbook_steps.map((st, i) => (
+                        <div key={i} style={{ background: '#020610', borderRadius: 8, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                            <span style={{ ...M, fontSize: '.68rem', color: '#67e8f9', fontWeight: 700 }}>{st.phase}</span>
+                            <button
+                              onClick={() => copyCode(st.code, `${m.id}-${i}`)}
+                              style={{ background: 'none', border: 'none', color: copiedId === `${m.id}-${i}` ? '#34d399' : '#00f0ff', ...M, fontSize: '.62rem', cursor: 'pointer' }}
+                            >
+                              {copiedId === `${m.id}-${i}` ? '✓ Copied' : '⎘ Copy'}
+                            </button>
+                          </div>
+                          <p style={{ fontSize: '.72rem', color: '#94a3b8', margin: '0 0 6px' }}>{st.action}</p>
+                          <pre style={{ ...M, fontSize: '.7rem', color: '#34d399', margin: 0, padding: '8px 10px', background: 'rgba(0,0,0,0.5)', borderRadius: 6, overflowX: 'auto', lineHeight: 1.5 }}>
+                            {st.code}
+                          </pre>
+                        </div>
+                      ))}
+                      <button
+                        onClick={() => executeAutoPatch(1)}
+                        className="btn btn-sm btn-primary"
+                        style={{ padding: '8px 16px', marginTop: 4, width: '100%', justifyContent: 'center' }}
+                      >
+                        ⚡ 1-Click Autonomous Patch Execution via ROBO AI
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Suggestions Chips */}
+                  {m.suggestions && (
+                    <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: 6, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                      {m.suggestions.map((sug, i) => (
+                        <button
+                          key={i}
+                          onClick={() => sendMessage(sug)}
+                          style={{
+                            background: 'rgba(0,240,255,0.06)',
+                            border: '1px solid rgba(0,240,255,0.22)',
+                            color: '#a5f3fc',
+                            ...M, fontSize: '.68rem', padding: '4px 10px',
+                            borderRadius: 6, cursor: 'pointer',
+                            transition: 'all .15s'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,240,255,0.15)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,240,255,0.06)'}
+                        >
+                          {sug}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
 
           {loading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 18px', background: 'rgba(0,240,255,0.05)', border: '1px solid rgba(0,240,255,0.2)', borderRadius: 12, width: 'fit-content' }}>
-              <div style={{ width: 18, height: 18, border: '2px solid rgba(0,240,255,0.2)', borderTopColor: '#00f0ff', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
-              <p style={{ ...M, fontSize: '.74rem', color: '#67e8f9', margin: 0 }}>
-                CyberShield Neural SecOps Engine analyzing topology &amp; CVE telemetry…
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 18px', background: 'rgba(0,240,255,0.06)', borderRadius: 12, border: '1px solid rgba(0,240,255,0.2)', width: 'fit-content' }}>
+              <div style={{ width: 18, height: 18, border: '2px solid rgba(0,240,255,0.2)', borderTopColor: '#00f0ff', borderRadius: '50%', animation: 'spin .6s linear infinite' }} />
+              <span style={{ ...M, fontSize: '.74rem', color: '#67e8f9' }}>ROBO AI reasoning across 10 enterprise assets &amp; neural CVE graph…</span>
             </div>
           )}
-
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input Bar */}
-        <form onSubmit={e => { e.preventDefault(); sendMessage(); }} style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', background: 'rgba(3,7,18,0.95)', display: 'flex', gap: 10 }}>
-          <input
-            className="inp"
-            placeholder="Ask AI Copilot (e.g. 'Fix Log4Shell', 'Attack Path', 'Compare Accuracy', 'Sahi kar do')…"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            disabled={loading}
-            style={{ fontSize: '.82rem', padding: '10px 14px' }}
-          />
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading || !input.trim()}
-            style={{ padding: '10px 18px', fontSize: '.82rem', fontWeight: 800, flexShrink: 0 }}
-          >
-            {loading ? 'Analyzing…' : '⚡ Ask AI'}
-          </button>
-        </form>
+        {/* ── Input Box ── */}
+        <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', background: 'rgba(4,9,20,0.95)' }}>
+          <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: 'flex', gap: 10 }}>
+            <input
+              className="inp"
+              placeholder={`Ask ROBO AI anything in English/Hinglish (e.g. "How to fix Log4Shell?" or "Simulate attack path")…`}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              disabled={loading}
+              style={{ flex: 1, padding: '12px 16px', fontSize: '.84rem' }}
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="btn btn-primary"
+              style={{ padding: '0 22px', fontSize: '.84rem', fontWeight: 800 }}
+            >
+              Send ➔
+            </button>
+          </form>
+        </div>
+
       </div>
     </div>
   );

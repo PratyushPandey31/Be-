@@ -6,7 +6,7 @@ const TABS = [
   { id: 'dashboard',  icon: '⬡', label: 'Dashboard' },
   { id: 'vault',      icon: '🔒', label: 'Security Vault' },
   { id: 'proactive',  icon: '🛡️', label: 'Proactive Shield' },
-  { id: 'aicopilot',  icon: '🤖', label: 'AI Copilot' },
+  { id: 'aicopilot',  icon: '🤖', label: 'ROBO AI' },
   { id: 'assets',     icon: '◈', label: 'Asset Inventory' },
   { id: 'prioritize', icon: '⚡', label: 'AI Risk Engine' },
   { id: 'scanner',    icon: '◎', label: 'Vulnerability Scanner' },

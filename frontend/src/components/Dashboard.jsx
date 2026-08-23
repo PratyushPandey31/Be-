@@ -233,7 +233,7 @@ export default function Dashboard({ stats, risks, goto, onOpenCopilot, onOpenPit
           }}>🤖</div>
           <div>
             <h4 style={{ margin: 0, fontSize: '.92rem', fontWeight: 800, color: '#fff' }}>
-              CyberShield Autonomous AI SecOps Copilot Active
+              ROBO AI Autonomous SecOps Defense Engine Active
             </h4>
             <p style={{ margin: '2px 0 0', fontSize: '.74rem', color: '#94a3b8' }}>
               Generate 1-click patch code, ask natural language questions &amp; simulate multi-stage attack graphs.
@@ -252,7 +252,7 @@ export default function Dashboard({ stats, risks, goto, onOpenCopilot, onOpenPit
             boxShadow: '0 0 16px rgba(0,240,255,0.4)'
           }}
         >
-          🚀 Launch AI Copilot
+          🚀 Launch ROBO AI
         </button>
       </div>
 

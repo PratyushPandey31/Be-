@@ -193,7 +193,7 @@ export default function App() {
         onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0) scale(1)'}
       >
         <span style={{ fontSize: '1.1rem', animation: 'pulse 1.5s ease infinite' }}>🤖</span>
-        <span>AI Copilot</span>
+        <span>ROBO AI</span>
       </button>
 
       {xai && <XAIDrawer risk={xai} onClose={() => setXai(null)} onResolve={handleResolve} />}
