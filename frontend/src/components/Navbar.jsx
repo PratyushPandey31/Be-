@@ -139,11 +139,7 @@ export default function Navbar({ tab, setTab, online, stats, scanning, user, onO
                 🚪
               </button>
             </div>
-          ) : (
-            <button className="btn btn-primary btn-sm" onClick={onOpenAuth} style={{ padding: '6px 14px', fontSize: '.74rem' }}>
-              🔑 Sign In / Register
-            </button>
-          )}
+          ) : null}
 
           {stats && (
             <>

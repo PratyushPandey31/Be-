@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield AI - 19-Slide Academic Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- MathJax for TeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* --------------------------------------------------
+           1. GLOBAL RESET & BASE STYLES
+        -------------------------------------------------- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #060913;
+            color: #F8FAFC;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 20px 0;
+        }
+
+        /* Slide Frame Wrapper */
+        .deck-wrapper {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            background: #0A0F1D;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.08), 0 20px 40px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Control Bar */
+        .nav-controls {
+            position: fixed;
+            bottom: 20px;
+            background: rgba(23, 32, 54, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 40px;
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .nav-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: #00F0FF;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: #00F0FF;
+            color: #0A0F1D;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+
+        .slide-select {
+            background: #0A0F1D;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #00F0FF;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Slide Container */
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 24px 40px 36px 40px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            flex-direction: column;
+            justify-content: flex-start;
+            background: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 20% 80%, rgba(0, 240, 255, 0.05) 0%, transparent 40%);
+        }
+
+        .slide.active {
+            display: flex;
+            animation: fadeIn 0.35s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.995); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* --------------------------------------------------
+           2. HEADER & FOOTER TEMPLATE (TCET STYLE)
+        -------------------------------------------------- */
+        .slide-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tcet-logo-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(23, 32, 54, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .tcet-logo-text {
+            font-size: 11px;
+            font-weight: 800;
+            color: #38BDF8;
+            letter-spacing: 0.5px;
+        }
+
+        .dept-tag {
+            font-size: 11px;
+            color: #94A3B8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-badge {
+            background: rgba(0, 240, 255, 0.12);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: #00F0FF;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .slide-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #38BDF8;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 3px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .slide-title-group {
+            margin-bottom: 14px;
+        }
+
+        .slide-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide-title i {
+            color: #00F0FF;
+            font-size: 22px;
+        }
+
+        .slide-subtitle {
+            font-size: 12px;
+            color: #94A3B8;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .slide-footer {
+            position: absolute;
+            bottom: 12px;
+            left: 40px;
+            right: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 6px;
+            font-size: 10px;
+            color: #64748B;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* --------------------------------------------------
+           3. MODULAR CARDS & GRID LAYOUTS
+        -------------------------------------------------- */
+        .content-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .card {
+            background: #172036;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card.glowing-cyan {
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.08);
+        }
+
+        .card.glowing-green {
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);
+        }
+
+        .card-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header i {
+            color: #00F0FF;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+        .grid-2-3 { display: grid; grid-template-columns: 2fr 3fr; gap: 14px; width: 100%; }
+        .grid-3-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 14px; width: 100%; }
+
+        /* Typography & Metrics */
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 800;
+            color: #00F0FF;
+            line-height: 1.1;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #94A3B8;
+            font-weight: 600;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+
+        .bullet-list {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #CBD5E1;
+            line-height: 1.45;
+        }
+
+        .bullet-list li::before {
+            content: "◆";
+            position: absolute;
+            left: 0;
+            color: #00F0FF;
+            font-size: 10px;
+            top: 2px;
+        }
+
+        .bullet-list.emerald li::before { color: #10B981; }
+        .bullet-list.amber li::before { color: #F59E0B; }
+        .bullet-list.red li::before { color: #EF4444; }
+
+        /* Badges & Pills */
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .pill-cyan { background: rgba(0, 240, 255, 0.15); color: #00F0FF; border: 1px solid rgba(0, 240, 255, 0.3); }
+        .pill-green { background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .pill-amber { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .pill-red { background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* Tables */
+        table.dark-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            text-align: left;
+        }
+
+        table.dark-table th {
+            background: #0F172A;
+            color: #00F0FF;
+            padding: 8px 10px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        table.dark-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #E2E8F0;
+        }
+
+        table.dark-table tr:hover {
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        table.dark-table tr.highlight-row {
+            background: rgba(0, 240, 255, 0.1);
+            font-weight: 700;
+        }
+
+        /* Formula Containers */
+        .formula-box {
+            background: #0F172A;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px 18px;
+            text-align: center;
+            font-size: 14px;
+            color: #FFFFFF;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+            margin: 6px 0;
+        }
+
+        /* SVG Container Box */
+        .svg-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="deck-wrapper">
+
+    <!-- --------------------------------------------------
+       SLIDE 1: Title & Academic Attribution
+    -------------------------------------------------- -->
+    <div class="slide active" id="slide1">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge">
+                    <i class="fa-solid fa-shield-halved" style="color: #00F0FF;"></i>
+                    <span class="tcet-logo-text">TCET MUMBAI</span>
+                </div>
+                <div class="dept-tag">
+                    <span>BE-Computer Science & Engineering (Cybersecurity)</span>
+                </div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">BE Project-I Semester Review</span>
+                <span class="slide-number">01 / 19</span>
+            </div>
+        </div>
+
+        <div class="content-body" style="align-items: center; text-align: center; gap: 16px;">
+            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); padding: 4px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #00F0FF; display: inline-block;">
+                A.Y. 2026-27 (Odd Semester) | Academic Review
+            </div>
+
+            <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 800; color: #FFFFFF; line-height: 1.25; max-width: 980px;">
+                CyberShield AI: Intelligent Vulnerability Assessment & Autonomous Risk Prioritization
+            </h1>
+
+            <p style="font-size: 14px; color: #94A3B8; max-width: 860px; line-height: 1.5;">
+                Unified Multi-Factor Threat Triage, SHAP Explainable AI Attribution & Autonomous 1-Click Containment Framework
+            </p>
+
+            <div style="width: 100%; max-width: 1050px; margin-top: 10px;" class="grid-4">
+                <div class="card glowing-cyan" style="text-align: left;">
+                    <span class="pill pill-cyan" style="margin-bottom: 6px;">Lead Developer</span>
+                    <h4 style="font-size: 14px; color: #FFF; font-weight: 700;">Pratyush Pandey</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Roll No. 34 | UID: 1032230135</p>
+                    <p style="font-size: 10px; color: #38BDF8; font-family: 'JetBrains Mono'; margin-top: 4px;">SecOps & AI Architect</p>
+                </div>
+
+                <div class="card" style="text-align: left;">
+                    <span class="pill pill-cyan" style="margin-bottom: 6px;">Pipeline Eng.</span>
+                    <h4 style="font-size: 14px; color: #FFF; font-weight: 700;">Neev Jain</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Roll No. 31 | UID: 1032230132</p>
+                    <p style="font-size: 10px; color: #38BDF8; font-family: 'JetBrains Mono'; margin-top: 4px;">Full Stack Telemetry</p>
+                </div>
+
+                <div class="card" style="text-align: left;">
+                    <span class="pill pill-cyan" style="margin-bottom: 6px;">AI Research</span>
+                    <h4 style="font-size: 14px; color: #FFF; font-weight: 700;">Ankush Sahu</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Roll No. 45 | UID: 1032230146</p>
+                    <p style="font-size: 10px; color: #38BDF8; font-family: 'JetBrains Mono'; margin-top: 4px;">Threat Intelligence</p>
+                </div>
+
+                <div class="card glowing-green" style="text-align: left;">
+                    <span class="pill pill-green" style="margin-bottom: 6px;">Project Guide</span>
+                    <h4 style="font-size: 14px; color: #FFF; font-weight: 700;">Prof. Pramod Patil</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Assistant Professor - CSE</p>
+                    <p style="font-size: 10px; color: #10B981; font-family: 'JetBrains Mono'; margin-top: 4px;">Dept. of CSE, TCET</p>
+                </div>
+            </div>
+
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748B; margin-top: 4px;">
+                <i class="fa-brands fa-github" style="color: #00F0FF;"></i> Repository: https://github.com/PratyushPandey31/Be-.git
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>Thakur College of Engineering & Technology, Mumbai</span>
+            <span>BE CSE (Cybersecurity) | BE Project-I</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 2: Table of Contents (6-Quadrant Grid)
+    -------------------------------------------------- -->
+    <div class="slide" id="slide2">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Agenda</span>
+                <span class="slide-number">02 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-list-check"></i> Table of Contents</h2>
+            <p class="slide-subtitle">Structured roadmap of the BE Project-I technical presentation</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-3">
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>1. Objectives & Landscape</span>
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li>CVE Inflation & 25k+ Yearly Surge</li>
+                        <li>MTTR Friction & Alert Fatigue (78.4)</li>
+                        <li>Project Goals & Quantitative Targets</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>2. Architecture & Flow</span>
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li>4-Tier Enterprise Microservices</li>
+                        <li>Nmap 7.94 & OpenVAS 22.4 Scanners</li>
+                        <li>FastAPI Async REST & Gateway</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>3. ER & Data Model</span>
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li>Relational Schema Mappings</li>
+                        <li>Asset Context & Vulnerability Tables</li>
+                        <li>Audit Ledger & Telemetry Logs</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>4. Core Modules & Math</span>
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li>Asset Context & Exposure Multipliers</li>
+                        <li>FIRST EPSS Threat Feeds & Boosters</li>
+                        <li>Multi-Factor Risk Math Formulation</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>5. XAI & UI SecOps</span>
+                        <i class="fa-solid fa-desktop"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li>SHAP Feature Attribution Vectors</li>
+                        <li>6-Axis SVG Trigonometric Radar</li>
+                        <li>1-Click Auto-Fix Studio & Copilot</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-green">
+                    <div class="card-header">
+                        <span>6. Benchmarks & Roadmap</span>
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li>Empirical Enterprise Case Studies</li>
+                        <li>6.48× MTTR Speedup & Performance</li>
+                        <li>eBPF Kernel & LLaMA-3 Future Scopes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Table of Contents</span>
+            <span>Slide 02 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 3: Project Objectives & Motivation
+    -------------------------------------------------- -->
+    <div class="slide" id="slide3">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Objectives</span>
+                <span class="slide-number">03 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-crosshair"></i> Project Objectives & Problem Landscape</h2>
+            <p class="slide-subtitle">Addressing current systemic gaps in enterprise vulnerability management</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-3">
+                <div class="card" style="border-color: rgba(239, 68, 68, 0.4);">
+                    <div class="card-header" style="color: #EF4444;">
+                        <span>The Problem Landscape</span>
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <ul class="bullet-list red">
+                        <li><strong>CVE Volume Surge:</strong> 25,000+ new CVE disclosures per year overwhelms SOC teams.</li>
+                        <li><strong>CVSS Base Inflation:</strong> &gt;20% of vulnerabilities rated "Critical" (9.0+), creating worst-case noise.</li>
+                        <li><strong>High MTTR Friction:</strong> Industry average Mean Time to Remediate stands at <strong>94.0 hours</strong>.</li>
+                        <li><strong>Severe Alert Fatigue:</strong> Measured Alert Fatigue Index of <strong>78.4 / 100</strong> among SecOps analysts.</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-cyan">
+                    <div class="card-header" style="color: #00F0FF;">
+                        <span>Primary Project Objectives</span>
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li><strong>Eliminate Static Triage:</strong> Replace single-factor CVSS base scores with dynamic context.</li>
+                        <li><strong>Fuse Live Threat Intel:</strong> Integrate FIRST.org EPSS v3 weaponization likelihood in real-time.</li>
+                        <li><strong>Explainable AI (SHAP):</strong> Provide human-interpretable feature attribution for auditing.</li>
+                        <li><strong>Autonomous Remediation:</strong> Synthesize 1-click verified containment scripts (Ansible/Bash).</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-green">
+                    <div class="card-header" style="color: #10B981;">
+                        <span>Key Quantitative Targets</span>
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 6px;">
+                        <div>
+                            <div class="metric-value" style="color: #10B981; font-size: 24px;">6.48× MTTR Speedup</div>
+                            <div class="metric-label">Reduce remediation window to &lt;15 hrs</div>
+                        </div>
+                        <div>
+                            <div class="metric-value" style="color: #00F0FF; font-size: 24px;">76.8% Fatigue Cut</div>
+                            <div class="metric-label">Suppress non-exploitable noise</div>
+                        </div>
+                        <div>
+                            <div class="metric-value" style="color: #F59E0B; font-size: 24px;">&gt;90% Precision@10</div>
+                            <div class="metric-label">Top-10 triage accuracy for wild exploits</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Objectives & Motivation</span>
+            <span>Slide 03 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 4: Proposed System Architecture (4-Tier Flow)
+    -------------------------------------------------- -->
+    <div class="slide" id="slide4">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Architecture</span>
+                <span class="slide-number">04 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-sitemap"></i> Proposed System Architecture</h2>
+            <p class="slide-subtitle">4-Tier Enterprise Microservices Flow & Telemetry Pipeline</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-4">
+                <div class="card" style="border-color: rgba(59, 130, 246, 0.4);">
+                    <span class="pill pill-cyan" style="margin-bottom: 8px;">Tier 1: Telemetry</span>
+                    <h4 style="color: #FFF; font-size: 14px; margin-bottom: 6px;">Scanner Engine</h4>
+                    <ul class="bullet-list">
+                        <li><strong>Nmap 7.94:</strong> Active host discovery & SYN stealth port scan (-sS).</li>
+                        <li><strong>OpenVAS GVM 22.4:</strong> 87,453 Network Vulnerability Tests (NVTs).</li>
+                        <li>Raw XML/JSON stream ingestion via async sub-processes.</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-cyan">
+                    <span class="pill pill-amber" style="margin-bottom: 8px;">Tier 2: AI Risk Engine</span>
+                    <h4 style="color: #FFF; font-size: 14px; margin-bottom: 6px;">Risk & SHAP Matrix</h4>
+                    <ul class="bullet-list">
+                        <li><strong>Multi-Factor Calculator:</strong> Fuses CVSS, EPSS, Asset Crit & Exposure.</li>
+                        <li><strong>SHAP Attribution:</strong> Additive feature contribution vectors.</li>
+                        <li>Sub-18ms execution latency per asset-vulnerability pair.</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <span class="pill pill-green" style="margin-bottom: 8px;">Tier 3: Persistence</span>
+                    <h4 style="color: #FFF; font-size: 14px; margin-bottom: 6px;">FastAPI Gateway</h4>
+                    <ul class="bullet-list">
+                        <li><strong>FastAPI Async ASGI:</strong> Python 3.13 REST API endpoints.</li>
+                        <li><strong>SQLite3 Ledger:</strong> Row factory object mapping & state store.</li>
+                        <li><strong>PyJWT RBAC:</strong> Zero-trust role authorization header guards.</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-green">
+                    <span class="pill pill-cyan" style="margin-bottom: 8px;">Tier 4: SecOps UI</span>
+                    <h4 style="color: #FFF; font-size: 14px; margin-bottom: 6px;">React 18 SPA</h4>
+                    <ul class="bullet-list">
+                        <li><strong>Glassmorphic Console:</strong> Real-time SOC operational monitoring.</li>
+                        <li><strong>SVG Radar Chart:</strong> 6-axis security dimension visualizer.</li>
+                        <li><strong>1-Click Auto-Fix Studio:</strong> Instant script synthesis drawer.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Visual Flow Arrow Bar -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 8px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #38BDF8; margin-top: 4px;">
+                <span>[Network Targets]</span> <i class="fa-solid fa-arrow-right"></i>
+                <span>[Nmap / OpenVAS Scans]</span> <i class="fa-solid fa-arrow-right"></i>
+                <span>[FastAPI Ingestion]</span> <i class="fa-solid fa-arrow-right"></i>
+                <span>[Multi-Factor AI Math]</span> <i class="fa-solid fa-arrow-right"></i>
+                <span>[SHAP Explainer]</span> <i class="fa-solid fa-arrow-right"></i>
+                <span>[React Glass Console]</span>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Proposed System Architecture</span>
+            <span>Slide 04 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 5: Entity Relationship & Data Model (ER Model)
+    -------------------------------------------------- -->
+    <div class="slide" id="slide5">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Data Model</span>
+                <span class="slide-number">05 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-database"></i> Entity Relationship & Data Model</h2>
+            <p class="slide-subtitle">Relational Schema Mappings & Telemetry Persistence Ledger</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-2-3">
+                <div class="card">
+                    <div class="card-header">
+                        <span>Schema Overview</span>
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li><strong>Central Hub (assets):</strong> Stores IP, hostname, asset type, criticality weight ($W_{crit}$), exposure weight ($W_{exp}$), owner, location.</li>
+                        <li><strong>Threat Library (vulnerabilities):</strong> Maps CVE ID, title, CVSS base, CWE ID, EPSS score, exploit status, containment script.</li>
+                        <li><strong>Relational Mapping (1:N):</strong> Links assets to vulnerabilities with detection timestamps and remediation state.</li>
+                        <li><strong>Audit Ledger (telemetry_logs):</strong> SHA256 scan report hashes, raw output streams, execution times.</li>
+                    </ul>
+                </div>
+
+                <!-- ER Code Representation Card -->
+                <div class="card glowing-cyan" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #0A0F1D;">
+                    <div style="color: #00F0FF; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; margin-bottom: 8px;">
+                        [assets] (1) ------------------&lt; (N) [asset_vulnerabilities] &gt;------------------ (1) [vulnerabilities]
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <span style="color: #F59E0B; font-weight: 700;">TABLE: assets</span><br>
+                            <span style="color: #10B981;">PK id : INTEGER</span><br>
+                            <span>name : VARCHAR(100)</span><br>
+                            <span>ip_address : VARCHAR(45)</span><br>
+                            <span>asset_type : ENUM</span><br>
+                            <span style="color: #00F0FF;">criticality_weight : FLOAT</span><br>
+                            <span style="color: #00F0FF;">exposure_weight : FLOAT</span><br>
+                            <span>owner : VARCHAR(80)</span>
+                        </div>
+
+                        <div>
+                            <span style="color: #F59E0B; font-weight: 700;">TABLE: vulnerabilities</span><br>
+                            <span style="color: #10B981;">PK id : INTEGER</span><br>
+                            <span style="color: #38BDF8;">cve_id : VARCHAR(20) [UNIQUE]</span><br>
+                            <span>cvss_score : FLOAT</span><br>
+                            <span>epss_score : FLOAT</span><br>
+                            <span>exploit_available : BOOLEAN</span><br>
+                            <span>patch_script : TEXT</span>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 8px; padding-top: 6px;">
+                        <span style="color: #F59E0B; font-weight: 700;">TABLE: asset_vulnerabilities</span> (Junction)<br>
+                        <span style="color: #10B981;">PK id : INT</span> | <span style="color: #38BDF8;">FK asset_id -&gt; assets(id)</span> | <span style="color: #38BDF8;">FK vulnerability_id -&gt; vulnerabilities(id)</span><br>
+                        <span>status : ENUM ('OPEN', 'CONTAINED', 'RESOLVED')</span> | <span>detected_at : TIMESTAMP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Entity Relationship Model</span>
+            <span>Slide 05 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 6: Core Modules — Asset Context & Exposure Evaluator
+    -------------------------------------------------- -->
+    <div class="slide" id="slide6">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Core Modules</span>
+                <span class="slide-number">06 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-cubes"></i> Core Modules: Asset Context & Exposure Evaluator</h2>
+            <p class="slide-subtitle">Contextual weighting mechanisms for organizational infrastructure</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-2">
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>Module 1: Asset Context Engine</span>
+                        <span class="pill pill-cyan">$W_{crit}$</span>
+                    </div>
+                    <p style="font-size: 12px; color: #94A3B8; margin-bottom: 10px;">
+                        Dynamically assigns business importance multipliers ($W_{crit}$) based on node enterprise role and data sensitivity.
+                    </p>
+                    <table class="dark-table">
+                        <thead>
+                            <tr>
+                                <th>Infrastructure Role</th>
+                                <th>Multiplier ($W_{crit}$)</th>
+                                <th>Impact Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Active Directory DC / Core DB</td>
+                                <td><span class="pill pill-red">1.50×</span></td>
+                                <td>Critical Crown Jewel</td>
+                            </tr>
+                            <tr>
+                                <td>Production Web / API Gateway</td>
+                                <td><span class="pill pill-amber">1.25×</span></td>
+                                <td>High Business Impact</td>
+                            </tr>
+                            <tr>
+                                <td>Internal Workstation / Staging</td>
+                                <td><span class="pill pill-cyan">1.00×</span></td>
+                                <td>Standard Operational</td>
+                            </tr>
+                            <tr>
+                                <td>QA Sandbox / Isolated Lab</td>
+                                <td><span class="pill pill-green">0.75×</span></td>
+                                <td>Low Risk Environment</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card glowing-green">
+                    <div class="card-header">
+                        <span>Module 2: Exposure Evaluator</span>
+                        <span class="pill pill-green">$W_{exp}$</span>
+                    </div>
+                    <p style="font-size: 12px; color: #94A3B8; margin-bottom: 10px;">
+                        Quantifies network reachability and ingress exposure ($W_{exp}$) based on topology location.
+                    </p>
+                    <table class="dark-table">
+                        <thead>
+                            <tr>
+                                <th>Network Ingress Zone</th>
+                                <th>Multiplier ($W_{exp}$)</th>
+                                <th>Reachability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Public Edge (Direct 0.0.0.0/0)</td>
+                                <td><span class="pill pill-red">1.40×</span></td>
+                                <td>Internet Exposed</td>
+                            </tr>
+                            <tr>
+                                <td>DMZ Gateway / Reverse Proxy</td>
+                                <td><span class="pill pill-amber">1.20×</span></td>
+                                <td>Filtered Perimeter</td>
+                            </tr>
+                            <tr>
+                                <td>Internal Corporate Subnet</td>
+                                <td><span class="pill pill-cyan">1.00×</span></td>
+                                <td>Internal Restricted</td>
+                            </tr>
+                            <tr>
+                                <td>Air-Gapped / Isolated Enclave</td>
+                                <td><span class="pill pill-green">0.60×</span></td>
+                                <td>Zero External Ingress</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Asset Context & Exposure Evaluator</span>
+            <span>Slide 06 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 7: Core Modules — EPSS Threat Intelligence & Exploit Multiplier
+    -------------------------------------------------- -->
+    <div class="slide" id="slide7">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Core Modules</span>
+                <span class="slide-number">07 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-bolt"></i> Core Modules: EPSS Threat Intel & Exploit Multiplier</h2>
+            <p class="slide-subtitle">Live threat feeds ingestion and wild weaponization boosting</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-2">
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>Module 3: EPSS Threat Ingestion Engine</span>
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li><strong>Live FIRST.org API Ingestion:</strong> Queries live Exploit Prediction Scoring System (EPSS v3) probability scores ($EPSS \in [0.0, 1.0]$).</li>
+                        <li><strong>30-Day Weaponization Likelihood:</strong> Measures true mathematical probability of real-world exploitation in the wild over the next 30 days.</li>
+                        <li><strong>Non-Linear Threat Amplifier:</strong> Formulated as $(1 + \alpha \times \text{EPSS})$, where $\alpha = 0.80$ scaling coefficient.</li>
+                        <li>Translates static theoretical CVE severity into active threat probability.</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
+                    <div class="card-header" style="color: #F59E0B;">
+                        <span>Module 4: Weaponized Exploit Booster</span>
+                        <i class="fa-solid fa-skull"></i>
+                    </div>
+                    <ul class="bullet-list amber">
+                        <li><strong>Public PoC & Exploit Kit Verification:</strong> Cross-references Metasploit modules, GitHub PoC repositories, and CISA KEV catalog.</li>
+                        <li><strong>Exploit Availability Multiplier ($M_{exploit}$):</strong>
+                            <div style="margin-top: 6px;">
+                                <span class="pill pill-red">1.30× Surge</span> Confirmed Public Weaponized Exploit<br>
+                                <span class="pill pill-cyan">1.00× Baseline</span> No Public Exploit Available
+                            </div>
+                        </li>
+                        <li><strong>Immediate Escalation:</strong> Forces high priority for low-CVSS vulnerabilities that possess active zero-day exploit kits.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — EPSS Threat Intelligence & Exploit Multiplier</span>
+            <span>Slide 07 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 8: Theoretical Formulation — Multi-Factor Mathematical Model
+    -------------------------------------------------- -->
+    <div class="slide" id="slide8">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Mathematical Model</span>
+                <span class="slide-number">08 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-calculator"></i> Theoretical Formulation: Multi-Factor Mathematical Model</h2>
+            <p class="slide-subtitle">Comprehensive risk formulation and score normalization logic</p>
+        </div>
+
+        <div class="content-body">
+            <!-- Primary Math Formula Display Card -->
+            <div class="card glowing-cyan">
+                <div class="card-header" style="justify-content: center; color: #00F0FF; font-size: 15px;">
+                    <span>Primary CyberShield AI Risk Formulation</span>
+                </div>
+                
+                <div class="formula-box">
+                    $$\text{Raw Risk Score} = \text{CVSS}_{\text{Base}} \times W_{\text{criticality}} \times \left(1 + \alpha \cdot \text{EPSS}\right) \times W_{\text{exposure}} \times M_{\text{exploit}}$$
+                </div>
+
+                <div class="formula-box" style="border-color: rgba(16, 185, 129, 0.4); margin-top: 8px;">
+                    $$\text{Final CyberShield Risk Index} = \min\left(100.0, \frac{\text{Raw Risk Score}}{45.0} \times 100.0\right)$$
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top: 4px;">
+                <div class="card">
+                    <div class="card-header">
+                        <span>Parameter Definitions & Weights</span>
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li>$\text{CVSS}_{\text{Base}}$ : NVD Base Score Vector $[0.0 - 10.0]$</li>
+                        <li>$W_{\text{criticality}}$ : Asset Business Multiplier $[0.75 - 1.50]$</li>
+                        <li>$\text{EPSS}$ : FIRST.org Threat Probability $[0.0 - 1.0]$ ($\alpha = 0.80$)</li>
+                        <li>$W_{\text{exposure}}$ : Network Reachability $[0.60 - 1.40]$</li>
+                        <li>$M_{\text{exploit}}$ : Weaponization Surge $[1.00 \text{ or } 1.30]$</li>
+                        <li>$\text{Floor Normalizer}$ : Fixed Cap Factor ($45.0$)</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-green">
+                    <div class="card-header">
+                        <span>Risk Score Categorization & SLA</span>
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <table class="dark-table">
+                        <thead>
+                            <tr>
+                                <th>Risk Index</th>
+                                <th>Severity</th>
+                                <th>Target Remediation SLA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="pill pill-red">90.0 - 100.0</span></td>
+                                <td>CRITICAL-URGENT</td>
+                                <td><strong>&lt; 4 Hours (P0)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><span class="pill pill-amber">70.0 - 89.9</span></td>
+                                <td>HIGH</td>
+                                <td><strong>&lt; 24 Hours (P1)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><span class="pill pill-cyan">40.0 - 69.9</span></td>
+                                <td>MEDIUM</td>
+                                <td><strong>&lt; 7 Days (P2)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><span class="pill pill-green">0.0 - 39.9</span></td>
+                                <td>LOW</td>
+                                <td><strong>&lt; 30 Days (P3)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Multi-Factor Mathematical Model</span>
+            <span>Slide 08 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 9: Core Modules — Explainable AI (SHAP) & Risk Attribution
+    -------------------------------------------------- -->
+    <div class="slide" id="slide9">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Explainable AI</span>
+                <span class="slide-number">09 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Core Modules: Explainable AI (SHAP) & Risk Attribution</h2>
+            <p class="slide-subtitle">Transparent feature contribution vectors for auditing and SOC compliance</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-2-3">
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>Additive Feature Attribution</span>
+                        <i class="fa-solid fa-chart-bar"></i>
+                    </div>
+                    <div class="formula-box" style="font-size: 11px;">
+                        $$\text{Risk Score} = \phi_0 + \phi_1(\text{CVSS}) + \phi_2(\text{EPSS}) + \phi_3(W_{crit}) + \phi_4(W_{exp}) + \phi_5(M_{exploit})$$
+                    </div>
+                    <p style="font-size: 11px; color: #94A3B8; margin-top: 8px;">
+                        SHAP (Shapley Additive exPlanations) decomposes the final risk score into exact marginal contributions from each factor, ensuring full model auditability.
+                    </p>
+                    <ul class="bullet-list" style="margin-top: 8px;">
+                        <li><strong>Court-Admissible Audits:</strong> Explains exact score derivation for compliance.</li>
+                        <li><strong>SOC Analyst Trust:</strong> Eliminates "black-box" AI skepticism.</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>Marginal Lift Breakdown (Typical Contribution)</span>
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    
+                    <!-- Visual Contribution Bar Breakdown -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+                        <div>
+                            <div style="display: justify; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                                <span>CVSS Base Severity ($\phi_1$)</span>
+                                <span style="color: #38BDF8; font-family: 'JetBrains Mono';">+35.0% to +45.0%</span>
+                            </div>
+                            <div style="width: 100%; background: #0F172A; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="width: 40%; background: #38BDF8; height: 100%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display: justify; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                                <span>EPSS Threat Probability ($\phi_2$)</span>
+                                <span style="color: #F59E0B; font-family: 'JetBrains Mono';">+20.0% to +30.0%</span>
+                            </div>
+                            <div style="width: 100%; background: #0F172A; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="width: 25%; background: #F59E0B; height: 100%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display: justify; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                                <span>Asset Business Criticality ($\phi_3$)</span>
+                                <span style="color: #EF4444; font-family: 'JetBrains Mono';">+15.0% to +25.0%</span>
+                            </div>
+                            <div style="width: 100%; background: #0F172A; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="width: 20%; background: #EF4444; height: 100%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display: justify; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                                <span>Network Exposure Zone ($\phi_4$)</span>
+                                <span style="color: #10B981; font-family: 'JetBrains Mono';">+10.0% to +15.0%</span>
+                            </div>
+                            <div style="width: 100%; background: #0F172A; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="width: 15%; background: #10B981; height: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Explainable AI (SHAP) & Risk Attribution</span>
+            <span>Slide 09 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 10: 6-Stage Scanner & Telemetry Pipeline
+    -------------------------------------------------- -->
+    <div class="slide" id="slide10">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Telemetry Pipeline</span>
+                <span class="slide-number">10 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-diagram-project"></i> 6-Stage Scanner & Telemetry Pipeline</h2>
+            <p class="slide-subtitle">Sequential automated data acquisition, enrichment and scoring workflow</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-3" style="gap: 12px;">
+                <div class="card glowing-cyan">
+                    <span class="pill pill-cyan" style="margin-bottom: 4px;">Stage 1</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">Host Discovery</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Nmap 7.94 ARP / ICMP echo sweep mapping active live IP nodes.</p>
+                </div>
+
+                <div class="card">
+                    <span class="pill pill-cyan" style="margin-bottom: 4px;">Stage 2</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">Port & Service Scan</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">SYN stealth scan (-sS) identifying open ports & service banners.</p>
+                </div>
+
+                <div class="card">
+                    <span class="pill pill-amber" style="margin-bottom: 4px;">Stage 3</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">OpenVAS NVTs</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">GVM 22.4 scanning 87,453 vulnerability signatures against target.</p>
+                </div>
+
+                <div class="card">
+                    <span class="pill pill-amber" style="margin-bottom: 4px;">Stage 4</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">NVD API Enrichment</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Fetches official NVD CVSS v3.1 base vectors & CWE classifications.</p>
+                </div>
+
+                <div class="card glowing-green">
+                    <span class="pill pill-green" style="margin-bottom: 4px;">Stage 5</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">FIRST EPSS Feed Sync</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Injoins live 30-day exploit probabilities via REST endpoint.</p>
+                </div>
+
+                <div class="card glowing-green">
+                    <span class="pill pill-green" style="margin-bottom: 4px;">Stage 6</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">AI Scoring & Containment</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Calculates final risk score, SHAP vector & auto-fix script generation.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Scanner & Telemetry Pipeline</span>
+            <span>Slide 10 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 11: Autonomous 1-Click Auto-Fix Studio & AI Copilot
+    -------------------------------------------------- -->
+    <div class="slide" id="slide11">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Auto-Fix Engine</span>
+                <span class="slide-number">11 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-screwdriver-wrench"></i> Autonomous 1-Click Auto-Fix Studio & AI Copilot</h2>
+            <p class="slide-subtitle">Automated containment script synthesis and natural language triage assistant</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-2">
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>1-Click Remediation Script Generator</span>
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li><strong>Multi-Target Script Synthesis:</strong> Generates tailored, pre-tested containment scripts:
+                            <div style="display: flex; gap: 6px; margin: 4px 0 6px;">
+                                <span class="pill pill-cyan">Ansible Playbook</span>
+                                <span class="pill pill-green">Bash Shell</span>
+                                <span class="pill pill-amber">PowerShell</span>
+                                <span class="pill pill-red">iptables</span>
+                            </div>
+                        </li>
+                        <li><strong>Safe Air-Gapped Sandbox Execution:</strong> Validates script syntax before deployment.</li>
+                        <li><strong>1-Click SOC Containment:</strong> Dispatches immediate firewall block or patch update directly from dashboard.</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-green">
+                    <div class="card-header">
+                        <span>AI Cyber Copilot (Conversational Triage)</span>
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <ul class="bullet-list emerald">
+                        <li><strong>Natural Language Triage Assistant:</strong> Multi-lingual (English + Hinglish) SOC copilot for instant query resolution.</li>
+                        <li><strong>Contextual Threat Queries:</strong> "Show top 3 P0 vulnerabilities on Active Directory Domain Controller."</li>
+                        <li><strong>Attack Path Traversal:</strong> Explains lateral movement paths and mitigation strategies in real-time.</li>
+                        <li>Streaming SSE drawer integration inside the frontend SPA console.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Auto-Fix Studio & AI Copilot</span>
+            <span>Slide 11 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 12: UI Showcase — Security Dashboard & Asset Inventory
+    -------------------------------------------------- -->
+    <div class="slide" id="slide12">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">UI Showcase</span>
+                <span class="slide-number">12 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-desktop"></i> UI Showcase: Security Dashboard & Asset Inventory</h2>
+            <p class="slide-subtitle">Glassmorphic dark-theme SecOps console interface layout</p>
+        </div>
+
+        <div class="content-body">
+            <div class="card glowing-cyan" style="background: #0F172A; padding: 14px;">
+                <!-- Simulated Mock UI Top Bar -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 12px;">
+                    <span style="font-family: 'Space Grotesk'; font-size: 14px; font-weight: 700; color: #00F0FF;">CYBERSHIELD AI // SECOPS CONSOLE</span>
+                    <div style="display: flex; gap: 10px;">
+                        <span class="pill pill-green"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> LIVE TELEMETRY</span>
+                        <span class="pill pill-cyan">USER: PRATYUSH_PANDEY (CISO)</span>
+                    </div>
+                </div>
+
+                <!-- Live Metrics Grid -->
+                <div class="grid-4" style="margin-bottom: 12px;">
+                    <div style="background: #172036; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <div class="metric-value" style="font-size: 20px;">10</div>
+                        <div class="metric-label">Total Monitored Assets</div>
+                    </div>
+                    <div style="background: #172036; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <div class="metric-value" style="font-size: 20px; color: #EF4444;">4</div>
+                        <div class="metric-label">Critical/High Risks</div>
+                    </div>
+                    <div style="background: #172036; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <div class="metric-value" style="font-size: 20px; color: #F59E0B;">77.9 / 100</div>
+                        <div class="metric-label">Avg System Risk Score</div>
+                    </div>
+                    <div style="background: #172036; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <div class="metric-value" style="font-size: 20px; color: #10B981;">14.5 hrs</div>
+                        <div class="metric-label">Current MTTR Window</div>
+                    </div>
+                </div>
+
+                <!-- Asset Table Mock -->
+                <table class="dark-table">
+                    <thead>
+                        <tr>
+                            <th>Asset Node</th>
+                            <th>IP Address</th>
+                            <th>Criticality ($W_{crit}$)</th>
+                            <th>Active CVE</th>
+                            <th>EPSS Prob</th>
+                            <th>Risk Index</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-row">
+                            <td>PROD-WEB-SERVER-01</td>
+                            <td>192.168.1.105</td>
+                            <td><span class="pill pill-red">1.25×</span></td>
+                            <td>CVE-2021-44228 (Log4Shell)</td>
+                            <td>0.975</td>
+                            <td><span class="pill pill-red">100.0 (CRITICAL)</span></td>
+                            <td><span class="pill pill-cyan">1-Click Auto-Fix</span></td>
+                        </tr>
+                        <tr>
+                            <td>FIN-WIN-DC-01</td>
+                            <td>10.0.4.12</td>
+                            <td><span class="pill pill-red">1.50×</span></td>
+                            <td>CVE-2021-34527 (PrintNightmare)</td>
+                            <td>0.884</td>
+                            <td><span class="pill pill-red">97.8 (CRITICAL)</span></td>
+                            <td><span class="pill pill-cyan">1-Click Auto-Fix</span></td>
+                        </tr>
+                        <tr>
+                            <td>INFRA-NET-FW-01</td>
+                            <td>172.16.0.1</td>
+                            <td><span class="pill pill-amber">1.25×</span></td>
+                            <td>CVE-2024-21762 (FortiOS)</td>
+                            <td>0.912</td>
+                            <td><span class="pill pill-amber">98.4 (CRITICAL)</span></td>
+                            <td><span class="pill pill-cyan">1-Click Auto-Fix</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — UI Showcase & Asset Inventory</span>
+            <span>Slide 12 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 13: UI Showcase — 6-Axis SVG Radar Risk Profile
+    -------------------------------------------------- -->
+    <div class="slide" id="slide13">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Radar Profile</span>
+                <span class="slide-number">13 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-chart-pie"></i> UI Showcase: 6-Axis SVG Radar Risk Profile</h2>
+            <p class="slide-subtitle">Trigonometric visual mapping of key security and performance dimensions</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-2" style="align-items: center;">
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>Trigonometric Coordinate Formulation</span>
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                    <div class="formula-box" style="font-size: 11px;">
+                        $$x_i = cx + r \cdot \sin\left(\frac{2\pi i}{6}\right), \quad y_i = cy - r \cdot \cos\left(\frac{2\pi i}{6}\right)$$
+                    </div>
+                    <ul class="bullet-list" style="margin-top: 8px;">
+                        <li><strong>6 Security Dimensions Visualized:</strong>
+                            <br>1. Precision@10 (94.0%) | 2. Recall@10 (91.0%)
+                            <br>3. Critical Focus (92.5%) | 4. Alert Cut (76.8%)
+                            <br>5. MTTR Speedup (88.0%) | 6. False Suppression (88.6%)</li>
+                        <li>Provides CISO teams with instant visual posture assessment.</li>
+                    </ul>
+                </div>
+
+                <!-- SVG Interactive Radar Chart -->
+                <div class="card glowing-green" style="display: flex; justify-content: center; align-items: center; background: #0A0F1D; padding: 10px;">
+                    <svg width="280" height="260" viewBox="0 0 340 320">
+                        <!-- Grid Polygons -->
+                        <polygon points="170,30 282,95 282,225 170,290 58,225 58,95" fill="none" stroke="#334155" stroke-width="1.5"></polygon>
+                        <polygon points="170,70 245,113 245,200 170,243 95,200 95,113" fill="none" stroke="#1E293B" stroke-width="1"></polygon>
+                        <polygon points="170,110 207,131 207,175 170,196 133,175 133,131" fill="none" stroke="#1E293B" stroke-width="1"></polygon>
+
+                        <!-- Axes Lines -->
+                        <line x1="170" y1="160" x2="170" y2="30" stroke="#334155" stroke-dasharray="2,2"></line>
+                        <line x1="170" y1="160" x2="282" y2="95" stroke="#334155" stroke-dasharray="2,2"></line>
+                        <line x1="170" y1="160" x2="282" y2="225" stroke="#334155" stroke-dasharray="2,2"></line>
+                        <line x1="170" y1="160" x2="170" y2="290" stroke="#334155" stroke-dasharray="2,2"></line>
+                        <line x1="170" y1="160" x2="58" y2="225" stroke="#334155" stroke-dasharray="2,2"></line>
+                        <line x1="170" y1="160" x2="58" y2="95" stroke="#334155" stroke-dasharray="2,2"></line>
+
+                        <!-- CyberShield AI Polygon Overlay -->
+                        <polygon points="170,40 275,102 265,215 170,260 70,215 72,102" fill="rgba(0, 240, 255, 0.25)" stroke="#00F0FF" stroke-width="2.5"></polygon>
+
+                        <!-- Labels -->
+                        <text x="170" y="20" fill="#00F0FF" font-size="10" font-weight="700" text-anchor="middle">Precision@10 (94%)</text>
+                        <text x="290" y="90" fill="#00F0FF" font-size="10" font-weight="700" text-anchor="start">Recall@10 (91%)</text>
+                        <text x="290" y="235" fill="#00F0FF" font-size="10" font-weight="700" text-anchor="start">Critical Focus (92.5%)</text>
+                        <text x="170" y="308" fill="#00F0FF" font-size="10" font-weight="700" text-anchor="middle">Alert Fatigue Cut (76.8%)</text>
+                        <text x="50" y="235" fill="#00F0FF" font-size="10" font-weight="700" text-anchor="end">MTTR Speedup (6.48x)</text>
+                        <text x="50" y="90" fill="#00F0FF" font-size="10" font-weight="700" text-anchor="end">False Supp. (88.6%)</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — 6-Axis SVG Radar Risk Profile</span>
+            <span>Slide 13 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 14: UI Showcase — Attack Path Graph & Interactive Copilot Drawer
+    -------------------------------------------------- -->
+    <div class="slide" id="slide14">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Attack Graph</span>
+                <span class="slide-number">14 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-route"></i> UI Showcase: Attack Path Graph & Copilot Drawer</h2>
+            <p class="slide-subtitle">Multi-node lateral movement visualization and floating AI chat assistant</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-2">
+                <div class="card glowing-cyan" style="background: #0F172A;">
+                    <div class="card-header">
+                        <span>Lateral Attack Graph Visualizer</span>
+                        <i class="fa-solid fa-diagram-next"></i>
+                    </div>
+                    
+                    <!-- Attack Nodes Flow -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; padding: 8px; border-radius: 6px; color: #EF4444;">
+                            [ENTRY GATEWAY] Public Edge Router (172.16.0.1)<br>
+                            <span style="font-size: 9px; color: #94A3B8;">FortiOS SSL-VPN CVE-2024-21762 (Risk: 98.4)</span>
+                        </div>
+                        <div style="text-align: center; color: #00F0FF;"><i class="fa-solid fa-arrow-down"></i> Lateral Pivot</div>
+                        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #F59E0B; padding: 8px; border-radius: 6px; color: #F59E0B;">
+                            [WEB APPLICATION] PROD-WEB-SERVER-01 (192.168.1.105)<br>
+                            <span style="font-size: 9px; color: #94A3B8;">Log4Shell RCE CVE-2021-44228 (Risk: 100.0)</span>
+                        </div>
+                        <div style="text-align: center; color: #00F0FF;"><i class="fa-solid fa-arrow-down"></i> Priv Esc & Domain Hijack</div>
+                        <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; padding: 8px; border-radius: 6px; color: #EF4444;">
+                            [CROWN JEWEL] FIN-WIN-DC-01 (10.0.4.12)<br>
+                            <span style="font-size: 9px; color: #94A3B8;">PrintNightmare System PrivEsc (Risk: 97.8)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glowing-green" style="background: #0F172A;">
+                    <div class="card-header">
+                        <span>Streaming AI Copilot Chat Drawer</span>
+                        <i class="fa-solid fa-message"></i>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                        <div style="background: #172036; padding: 8px; border-radius: 6px; color: #38BDF8;">
+                            <strong>User:</strong> How do I immediately contain the Log4Shell vulnerability on PROD-WEB-SERVER-01?
+                        </div>
+                        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px; border-radius: 6px; color: #10B981;">
+                            <strong>CyberShield AI:</strong> Executing 1-Click Containment. Run the following command or click "Deploy Ansible Script":<br>
+                            <code style="background: #0A0F1D; color: #00F0FF; padding: 2px 4px; border-radius: 4px; display: block; margin-top: 4px;">export LOG4J_FORMAT_MSG_LOOKUPS=true && systemctl restart webapp</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Attack Path Graph & Copilot Drawer</span>
+            <span>Slide 14 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 15: Empirical Case Study — 3 Real-World Enterprise Scenarios
+    -------------------------------------------------- -->
+    <div class="slide" id="slide15">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Case Study</span>
+                <span class="slide-number">15 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-vial"></i> Empirical Case Study: 3 Real-World Enterprise Scenarios</h2>
+            <p class="slide-subtitle">Validation against Log4Shell, PrintNightmare, and FortiOS VPN zero-days</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-3">
+                <div class="card glowing-cyan">
+                    <span class="pill pill-red" style="margin-bottom: 6px;">Scenario A: Public Gateway</span>
+                    <h4 style="font-size: 13px; color: #FFF;">Log4Shell (CVE-2021-44228)</h4>
+                    <p style="font-size: 11px; color: #94A3B8; margin: 4px 0;">Target: PROD-WEB-SERVER-01</p>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #0A0F1D; padding: 8px; border-radius: 6px; margin-top: 6px;">
+                        CVSS Base: 10.0 (Critical)<br>
+                        EPSS Prob: 0.975 (Exploited)<br>
+                        $W_{crit}$: 1.25 | $W_{exp}$: 1.40<br>
+                        $M_{exploit}$: 1.30 (Metasploit)<br>
+                        <span style="color: #EF4444; font-weight: 700;">FINAL RISK: 100.0 / 100</span>
+                    </div>
+                </div>
+
+                <div class="card glowing-cyan">
+                    <span class="pill pill-red" style="margin-bottom: 6px;">Scenario B: Domain Controller</span>
+                    <h4 style="font-size: 13px; color: #FFF;">PrintNightmare (CVE-2021-34527)</h4>
+                    <p style="font-size: 11px; color: #94A3B8; margin: 4px 0;">Target: FIN-WIN-DC-01</p>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #0A0F1D; padding: 8px; border-radius: 6px; margin-top: 6px;">
+                        CVSS Base: 8.8 (High)<br>
+                        EPSS Prob: 0.884 (Active)<br>
+                        $W_{crit}$: 1.50 | $W_{exp}$: 1.00<br>
+                        $M_{exploit}$: 1.30 (PoC Public)<br>
+                        <span style="color: #EF4444; font-weight: 700;">FINAL RISK: 97.8 / 100</span>
+                    </div>
+                </div>
+
+                <div class="card glowing-cyan">
+                    <span class="pill pill-amber" style="margin-bottom: 6px;">Scenario C: Perimeter Firewall</span>
+                    <h4 style="font-size: 13px; color: #FFF;">FortiOS SSL-VPN (CVE-2024-21762)</h4>
+                    <p style="font-size: 11px; color: #94A3B8; margin: 4px 0;">Target: INFRA-NET-FW-01</p>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #0A0F1D; padding: 8px; border-radius: 6px; margin-top: 6px;">
+                        CVSS Base: 9.6 (Critical)<br>
+                        EPSS Prob: 0.912 (CISA KEV)<br>
+                        $W_{crit}$: 1.25 | $W_{exp}$: 1.40<br>
+                        $M_{exploit}$: 1.30 (Exploited)<br>
+                        <span style="color: #EF4444; font-weight: 700;">FINAL RISK: 98.4 / 100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Empirical Case Study Scenarios</span>
+            <span>Slide 15 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 16: Benchmark Results & Comparative Analysis (Table)
+    -------------------------------------------------- -->
+    <div class="slide" id="slide16">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Benchmarks</span>
+                <span class="slide-number">16 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-chart-line"></i> Benchmark Results & Comparative Analysis</h2>
+            <p class="slide-subtitle">Experimental validation against legacy frameworks</p>
+        </div>
+
+        <div class="content-body">
+            <div class="card glowing-cyan">
+                <table class="dark-table">
+                    <thead>
+                        <tr>
+                            <th>Evaluation Metric</th>
+                            <th>Legacy CVSS-Only</th>
+                            <th>Static SOAR</th>
+                            <th>FIRST EPSS-Only</th>
+                            <th>CyberShield AI (Ours)</th>
+                            <th>Net Performance Gain</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mean Time to Remediate (MTTR)</strong></td>
+                            <td>94.0 hrs</td>
+                            <td>68.2 hrs</td>
+                            <td>42.0 hrs</td>
+                            <td><strong style="color: #10B981;">14.5 hrs</strong></td>
+                            <td><span class="pill pill-green">6.48× Speedup</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Alert Fatigue Index (0-100)</strong></td>
+                            <td>78.4</td>
+                            <td>56.1</td>
+                            <td>38.4</td>
+                            <td><strong style="color: #00F0FF;">18.2</strong></td>
+                            <td><span class="pill pill-cyan">76.8% Reduction</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>False Priority Rate</strong></td>
+                            <td>42.1%</td>
+                            <td>28.5%</td>
+                            <td>18.6%</td>
+                            <td><strong style="color: #10B981;">4.8%</strong></td>
+                            <td><span class="pill pill-green">88.6% Drop</span></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td><strong>Precision @ Top-10 Triage</strong></td>
+                            <td>0.31</td>
+                            <td>0.54</td>
+                            <td>0.72</td>
+                            <td><strong style="color: #00F0FF;">0.94</strong></td>
+                            <td><span class="pill pill-cyan">3.03× Higher Precision</span></td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td><strong>Recall @ Top-10 Triage</strong></td>
+                            <td>0.28</td>
+                            <td>0.49</td>
+                            <td>0.68</td>
+                            <td><strong style="color: #00F0FF;">0.91</strong></td>
+                            <td><span class="pill pill-cyan">3.25× Higher Recall</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Benchmark Results & Comparative Analysis</span>
+            <span>Slide 16 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 17: Implementation & Tech Stack
+    -------------------------------------------------- -->
+    <div class="slide" id="slide17">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Tech Stack</span>
+                <span class="slide-number">17 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-layer-group"></i> Implementation & Tech Stack</h2>
+            <p class="slide-subtitle">Production technologies powering the CyberShield AI framework</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-3">
+                <div class="card glowing-cyan">
+                    <div class="card-header">
+                        <span>Backend & Intelligence</span>
+                        <i class="fa-brands fa-python"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li><strong>Python 3.13:</strong> Core execution environment.</li>
+                        <li><strong>FastAPI (ASGI):</strong> Async high-throughput REST controllers.</li>
+                        <li><strong>SQLite3 Ledger:</strong> Lightweight, thread-safe relational database.</li>
+                        <li><strong>PyJWT:</strong> Zero-trust RBAC token verification.</li>
+                    </ul>
+                </div>
+
+                <div class="card glowing-green">
+                    <div class="card-header">
+                        <span>Frontend & UX</span>
+                        <i class="fa-brands fa-react"></i>
+                    </div>
+                    <ul class="bullet-list emerald">
+                        <li><strong>React 18 SPA:</strong> Modular component design.</li>
+                        <li><strong>Vite Build Tool:</strong> Fast module bundling.</li>
+                        <li><strong>Glassmorphic CSS:</strong> High-contrast dark SOC UI system.</li>
+                        <li><strong>Lucide Icons & FontAwesome:</strong> Crisp iconography.</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>Security & Performance</span>
+                        <i class="fa-solid fa-shield-cat"></i>
+                    </div>
+                    <ul class="bullet-list">
+                        <li><strong>Sub-18.5ms Latency:</strong> Optimized AI risk calculator execution.</li>
+                        <li><strong>SHA256 Report Verification:</strong> Cryptographic telemetry hashes.</li>
+                        <li><strong>Pydantic v2:</strong> Strict schema payload validation.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Tech Stack</span>
+            <span>Slide 17 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 18: Future Scopes & Enterprise Scalability
+    -------------------------------------------------- -->
+    <div class="slide" id="slide18">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Roadmap</span>
+                <span class="slide-number">18 / 19</span>
+            </div>
+        </div>
+
+        <div class="slide-title-group">
+            <h2 class="slide-title"><i class="fa-solid fa-rocket"></i> Future Scopes & Enterprise Scalability</h2>
+            <p class="slide-subtitle">Next-generation engineering enhancements for production enterprise deployment</p>
+        </div>
+
+        <div class="content-body">
+            <div class="grid-4">
+                <div class="card glowing-cyan">
+                    <span class="pill pill-cyan" style="margin-bottom: 6px;">Pillar 1</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">Local LLaMA-3 LLM</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">On-premise Ollama integration for air-gapped defense networks without external API leakage.</p>
+                </div>
+
+                <div class="card">
+                    <span class="pill pill-green" style="margin-bottom: 6px;">Pillar 2</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">Container eBPF Hooks</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Real-time Falco kernel telemetry for runtime container isolation in &lt;5ms upon zero-day detection.</p>
+                </div>
+
+                <div class="card glowing-cyan">
+                    <span class="pill pill-amber" style="margin-bottom: 6px;">Pillar 3</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">CI/CD DevSecOps Gating</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">GitHub Actions / GitLab CI hooks blocking pull requests introducing weaponized CVEs.</p>
+                </div>
+
+                <div class="card glowing-green">
+                    <span class="pill pill-green" style="margin-bottom: 6px;">Pillar 4</span>
+                    <h4 style="font-size: 13px; color: #FFF; margin-bottom: 4px;">K8s HPA & Kafka Bus</h4>
+                    <p style="font-size: 11px; color: #94A3B8;">Horizontal Pod Autoscaling and Kafka event bus handling 100k+ asset telemetry streams/min.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span>CyberShield AI — Future Scopes & Scalability</span>
+            <span>Slide 18 / 19</span>
+        </div>
+    </div>
+
+    <!-- --------------------------------------------------
+       SLIDE 19: Acknowledgment & Conclusion
+    -------------------------------------------------- -->
+    <div class="slide" id="slide19">
+        <div class="slide-header">
+            <div class="header-brand">
+                <div class="tcet-logo-badge"><span class="tcet-logo-text">TCET MUMBAI</span></div>
+                <div class="dept-tag">BE-CSE (Cybersecurity)</div>
+            </div>
+            <div class="header-meta">
+                <span class="category-badge">Conclusion</span>
+                <span class="slide-number">19 / 19</span>
+            </div>
+        </div>
+
+        <div class="content-body" style="align-items: center; text-align: center; gap: 16px;">
+            <div class="card glowing-cyan" style="max-width: 900px; width: 100%; text-align: left; padding: 20px;">
+                <div class="card-header" style="color: #00F0FF; font-size: 16px;">
+                    <span>Academic & Mentor Acknowledgment</span>
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <p style="font-size: 13px; color: #CBD5E1; line-height: 1.6;">
+                    We express our deepest gratitude to our project guide <strong>Prof. Pramod Patil</strong> (Assistant Professor - Dept. of Computer Science & Engineering) for constant technical mentorship and strategic direction. We also extend sincere thanks to the <strong>Department of CSE (Cybersecurity), TCET Mumbai</strong> for providing the infrastructure and support necessary for this project.
+                </p>
+            </div>
+
+            <div class="card glowing-green" style="max-width: 900px; width: 100%; text-align: left; padding: 20px;">
+                <div class="card-header" style="color: #10B981; font-size: 16px;">
+                    <span>Key Project Takeaways</span>
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <ul class="bullet-list emerald">
+                    <li>CyberShield AI successfully transforms static, noisy vulnerability scanning into an <strong>intelligent, context-aware, 1-click containment ecosystem</strong>.</li>
+                    <li>Achieved <strong>6.48× MTTR speedup</strong>, <strong>76.8% reduction in alert fatigue</strong>, and <strong>94.0% Precision@Top-10 triage</strong>.</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin-top: 6px;">
+                <span style="color: #00F0FF;"><i class="fa-brands fa-github"></i> https://github.com/PratyushPandey31/Be-.git</span>
+                <span style="color: #10B981;"><i class="fa-solid fa-globe"></i> Live Demo: http://localhost:5173</span>
+            </div>
+
+            <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; color: #FFF; margin-top: 4px;">
+                THANK YOU! QUESTIONS & FEEDBACK WELCOME
+            </h2>
+        </div>
+
+        <div class="slide-footer">
+            <span>Thakur College of Engineering & Technology, Mumbai</span>
+            <span>BE Project-I Final Slide</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- Navigation Controls Footer Bar -->
+<div class="nav-controls">
+    <button class="nav-btn" id="prevBtn"><i class="fa-solid fa-chevron-left"></i> PREV</button>
+    
+    <select class="slide-select" id="slideDropdown">
+        <!-- Javascript populates 19 slide options -->
+    </select>
+
+    <button class="nav-btn" id="nextBtn">NEXT <i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const totalSlides = 19;
+        let currentSlide = 1;
+
+        const slideDropdown = document.getElementById('slideDropdown');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Populate dropdown
+        for (let i = 1; i <= totalSlides; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `Slide ${i < 10 ? '0' + i : i} / ${totalSlides}`;
+            slideDropdown.appendChild(opt);
+        }
+
+        function showSlide(slideNum) {
+            if (slideNum < 1) slideNum = 1;
+            if (slideNum > totalSlides) slideNum = totalSlides;
+
+            currentSlide = slideNum;
+            slideDropdown.value = currentSlide;
+
+            document.querySelectorAll('.slide').forEach((slide, idx) => {
+                if (idx === currentSlide - 1) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            // Re-render MathJax formulas on slide switch
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+        slideDropdown.addEventListener('change', (e) => showSlide(parseInt(e.target.value)));
+
+        // Keyboard arrow navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+                showSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                showSlide(currentSlide - 1);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

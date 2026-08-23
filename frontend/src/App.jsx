@@ -7,66 +7,62 @@ import ScannerPanel from './components/ScannerPanel';
 import EvaluationPanel from './components/EvaluationPanel';
 import ReportPanel from './components/ReportPanel';
 import XAIDrawer from './components/XAIDrawer';
-import AuthModal from './components/AuthModal';
 import AICopilotDrawer from './components/AICopilotDrawer';
 import FacultyPitchPadModal from './components/FacultyPitchPadModal';
 import MitigationReportModal from './components/MitigationReportModal';
 import ProactiveDefensePanel from './components/ProactiveDefensePanel';
 import SecurityVaultPanel from './components/SecurityVaultPanel';
+import LoginPage from './components/LoginPage';
 
 const API = 'http://127.0.0.1:8000/api';
 
+const M = { fontFamily: "'JetBrains Mono', monospace" };
+
 const s = {
-  root:   { minHeight:'100vh', display:'flex', flexDirection:'column', fontFamily:"'Inter', system-ui, sans-serif" },
-  main:   { flex:1, width:'100%', maxWidth:1640, margin:'0 auto', padding:'22px 22px', display:'flex', flexDirection:'column', gap:18 },
-  loader: { display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16, padding:'80px 20px',
-            background:'rgba(6,12,28,0.5)', backdropFilter:'blur(24px)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, margin:'40px 0' },
-  spin:   { width:40, height:40, border:'3px solid rgba(0,240,255,0.15)', borderTopColor:'#00f0ff', borderRadius:'50%', animation:'spin .8s linear infinite' },
-  footer: { borderTop:'1px solid rgba(255,255,255,0.05)', padding:'12px 24px', textAlign:'center',
-            fontFamily:"'JetBrains Mono',monospace", fontSize:'.65rem', color:'#334155' },
+  root:   { minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif" },
+  main:   { flex: 1, width: '100%', maxWidth: 1640, margin: '0 auto', padding: '22px 22px', display: 'flex', flexDirection: 'column', gap: 18 },
+  loader: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '80px 20px',
+            background: 'rgba(6,12,28,0.5)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, margin: '40px 0' },
+  spin:   { width: 40, height: 40, border: '3px solid rgba(0,240,255,0.15)', borderTopColor: '#00f0ff', borderRadius: '50%', animation: 'spin .8s linear infinite' },
+  footer: { borderTop: '1px solid rgba(255,255,255,0.05)', padding: '12px 24px', textAlign: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: '.65rem', color: '#334155' },
 };
 
 export default function App() {
-  const [tab, setTab]         = useState('dashboard');
-  const [online, setOnline]   = useState(false);
-  const [stats, setStats]     = useState(null);
-  const [assets, setAssets]   = useState([]);
-  const [risks, setRisks]     = useState([]);
-  const [metrics, setMetrics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [xai, setXai]         = useState(null);
-  const [scanning, setScanning] = useState(false);
-
-  // User Auth State
-  const [user, setUser]                 = useState(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
-  // AI Copilot Drawer State
+  const [tab, setTab]               = useState('dashboard');
+  const [online, setOnline]         = useState(false);
+  const [stats, setStats]           = useState(null);
+  const [assets, setAssets]         = useState([]);
+  const [risks, setRisks]           = useState([]);
+  const [metrics, setMetrics]       = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [xai, setXai]               = useState(null);
+  const [scanning, setScanning]     = useState(false);
   const [showCopilot, setShowCopilot]   = useState(false);
-
-  // Faculty Defense Pitch Pad State
   const [showPitchPad, setShowPitchPad] = useState(false);
-
-  // Mitigation Execution Mini Audit Report State
-  const [mitigationReport, setMitigationReport] = useState(null);
+  const [mitigationReport, setMitigationReport]     = useState(null);
   const [showMitigationModal, setShowMitigationModal] = useState(false);
 
+  // ── AUTH STATE ─────────────────────────────────────
+  const [user, setUser]             = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
   useEffect(() => {
-    // Check saved user session in localStorage
     const savedUser = localStorage.getItem('cybershield_user');
-    if (savedUser) {
+    const savedToken = localStorage.getItem('cybershield_token');
+    if (savedUser && savedToken) {
       try { setUser(JSON.parse(savedUser)); } catch { }
     }
+    setAuthChecked(true);
   }, []);
 
   const fetchAll = useCallback(async () => {
     try {
       const [h, st, as, ri, me] = await Promise.all([
-        fetch(`${API}/health`).catch(()=>null),
-        fetch(`${API}/dashboard/stats`).catch(()=>null),
-        fetch(`${API}/assets`).catch(()=>null),
-        fetch(`${API}/prioritize`).catch(()=>null),
-        fetch(`${API}/evaluation/metrics`).catch(()=>null),
+        fetch(`${API}/health`).catch(() => null),
+        fetch(`${API}/dashboard/stats`).catch(() => null),
+        fetch(`${API}/assets`).catch(() => null),
+        fetch(`${API}/prioritize`).catch(() => null),
+        fetch(`${API}/evaluation/metrics`).catch(() => null),
       ]);
       setOnline(h?.ok || false);
       if (st?.ok) setStats(await st.json());
@@ -77,23 +73,28 @@ export default function App() {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchAll(); const id=setInterval(fetchAll,12000); return ()=>clearInterval(id); }, [fetchAll]);
+  useEffect(() => {
+    if (user) {
+      fetchAll();
+      const id = setInterval(fetchAll, 12000);
+      return () => clearInterval(id);
+    }
+  }, [fetchAll, user]);
 
   const createAsset = async (data) => {
-    const r = await fetch(`${API}/assets`,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-    if(r.ok) fetchAll();
+    const r = await fetch(`${API}/assets`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    if (r.ok) fetchAll();
     return r.ok;
   };
 
   const handleResolve = async (findingId, findingData = null) => {
     const currentFinding = findingData || risks.find(r => r.finding_id === findingId);
     try {
-      const r = await fetch(`${API}/findings/${findingId}/status`, {
-        method:'PUT', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ status:'RESOLVED' })
+      await fetch(`${API}/findings/${findingId}/status`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'RESOLVED' })
       });
-
-      const reportPayload = {
+      setMitigationReport({
         finding_id: findingId,
         cve_id: currentFinding?.vulnerability?.cve_id || `Finding #${findingId}`,
         title: currentFinding?.vulnerability?.title || 'Security Weakness Remediation',
@@ -107,75 +108,76 @@ export default function App() {
         epss: currentFinding?.vulnerability?.epss || 0.95,
         patch_script: currentFinding?.vulnerability?.patch_script || 'sudo systemctl restart security-daemon && sudo apt-get --only-upgrade update',
         timestamp: new Date().toLocaleString()
-      };
-
-      setMitigationReport(reportPayload);
+      });
       setShowMitigationModal(true);
       setXai(null);
       fetchAll();
-    } catch (e) {
-      console.error("Mitigation error:", e);
-    }
+    } catch (e) { console.error('Mitigation error:', e); }
   };
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
-    setShowAuthModal(false);
+    setLoading(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('cybershield_token');
     localStorage.removeItem('cybershield_user');
     setUser(null);
+    setStats(null);
+    setAssets([]);
+    setRisks([]);
+    setMetrics(null);
   };
 
+  // ── MANDATORY AUTH GATE: show nothing if not logged in ──
+  if (!authChecked) return null;
+
+  if (!user) {
+    return <LoginPage API={API} onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  // ── MAIN APP (only visible after successful auth) ──────
   return (
     <div style={s.root}>
       <Navbar
         tab={tab} setTab={setTab} online={online} stats={stats} scanning={scanning}
-        user={user} onOpenAuth={() => setShowAuthModal(true)} onLogout={handleLogout}
+        user={user} onLogout={handleLogout}
         onOpenPitchPad={() => setShowPitchPad(true)}
       />
 
       <main style={s.main}>
         {loading ? (
           <div style={s.loader}>
-            <div style={s.spin}/>
-            <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'.82rem', color:'#00f0ff' }}>
-              Connecting to CyberShield AI Engine…
+            <div style={s.spin} />
+            <p style={{ ...M, fontSize: '.82rem', color: '#00f0ff' }}>
+              Authenticating & Loading CyberShield AI Engine…
             </p>
-            <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'.68rem', color:'#475569' }}>
-              Loading vulnerability database · asset inventory · risk metrics
+            <p style={{ ...M, fontSize: '.68rem', color: '#475569' }}>
+              Welcome, {user.username} · {user.role} · Initializing vulnerability database & risk metrics
             </p>
           </div>
         ) : (
           <div className="anim-fadeup">
-            {tab==='dashboard'  && <Dashboard stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)} onResolve={handleResolve} />}
-            {tab==='vault'      && <SecurityVaultPanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
-            {tab==='proactive'  && <ProactiveDefensePanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
-            {tab==='aicopilot'  && <AICopilotDrawer API={API} onClose={()=>setTab('dashboard')} onResolve={handleResolve} />}
-            {tab==='assets'     && <AssetManager assets={assets} onCreate={createAsset} risks={risks}/>}
-            {tab==='prioritize' && <RiskPrioritizer risks={risks} onXai={setXai} onResolve={handleResolve} />}
-            {tab==='scanner'    && (
-              <ScannerPanel
-                API={API}
-                onDone={fetchAll}
-                onScanStart={()=>setScanning(true)}
-                onScanEnd={()=>setScanning(false)}
-              />
-            )}
-            {tab==='evaluation' && <EvaluationPanel metrics={metrics} onOpenPitchPad={() => setShowPitchPad(true)}/>}
-            {tab==='report'     && <ReportPanel stats={stats} risks={risks} metrics={metrics} API={API} />}
+            {tab === 'dashboard'  && <Dashboard  stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)} onResolve={handleResolve} />}
+            {tab === 'vault'      && <SecurityVaultPanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
+            {tab === 'proactive'  && <ProactiveDefensePanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
+            {tab === 'aicopilot'  && <AICopilotDrawer API={API} onClose={() => setTab('dashboard')} onResolve={handleResolve} />}
+            {tab === 'assets'     && <AssetManager assets={assets} onCreate={createAsset} risks={risks} />}
+            {tab === 'prioritize' && <RiskPrioritizer risks={risks} onXai={setXai} onResolve={handleResolve} />}
+            {tab === 'scanner'    && <ScannerPanel API={API} onDone={fetchAll} onScanStart={() => setScanning(true)} onScanEnd={() => setScanning(false)} />}
+            {tab === 'evaluation' && <EvaluationPanel metrics={metrics} onOpenPitchPad={() => setShowPitchPad(true)} />}
+            {tab === 'report'     && <ReportPanel stats={stats} risks={risks} metrics={metrics} API={API} />}
           </div>
         )}
       </main>
 
       <footer style={s.footer}>
         CyberShield AI — Intelligent Vulnerability Assessment &amp; Risk Prioritization &nbsp;|&nbsp;
-        IEEE Research Platform &nbsp;|&nbsp; AI Copilot Active &nbsp;|&nbsp; v1.0
+        IEEE Research Platform &nbsp;|&nbsp; Authenticated: <span style={{ color: '#67e8f9' }}>{user.username} ({user.role})</span>
       </footer>
 
-      {/* Floating CyberShield AI Copilot Trigger Button */}
+      {/* Floating AI Copilot Button */}
       <button
         onClick={() => setShowCopilot(true)}
         style={{
@@ -194,35 +196,16 @@ export default function App() {
         <span>AI Copilot</span>
       </button>
 
-      {xai && <XAIDrawer risk={xai} onClose={()=>setXai(null)} onResolve={handleResolve}/>}
+      {xai && <XAIDrawer risk={xai} onClose={() => setXai(null)} onResolve={handleResolve} />}
 
-      {showAuthModal && (
-        <AuthModal
-          API={API}
-          onLoginSuccess={handleLoginSuccess}
-          onClose={() => setShowAuthModal(false)}
-        />
-      )}
+      {showCopilot && <AICopilotDrawer API={API} onClose={() => setShowCopilot(false)} onResolve={handleResolve} />}
 
-      {showCopilot && (
-        <AICopilotDrawer
-          API={API}
-          onClose={() => setShowCopilot(false)}
-          onResolve={handleResolve}
-        />
-      )}
-
-      {/* Faculty Defense & Viva Pitch Pad Modal */}
       <FacultyPitchPadModal
         isOpen={showPitchPad}
         onClose={() => setShowPitchPad(false)}
-        onNavigateTab={(targetTab) => {
-          setShowPitchPad(false);
-          setTab(targetTab);
-        }}
+        onNavigateTab={(targetTab) => { setShowPitchPad(false); setTab(targetTab); }}
       />
 
-      {/* Mitigation Execution Mini Audit Report Modal Popup */}
       <MitigationReportModal
         isOpen={showMitigationModal}
         onClose={() => setShowMitigationModal(false)}
