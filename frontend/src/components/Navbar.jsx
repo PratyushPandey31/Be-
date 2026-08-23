@@ -4,6 +4,7 @@ const M = { fontFamily: "'JetBrains Mono',monospace" };
 
 const TABS = [
   { id: 'dashboard',  icon: '⬡', label: 'Dashboard' },
+  { id: 'vault',      icon: '🔒', label: 'Security Vault' },
   { id: 'proactive',  icon: '🛡️', label: 'Proactive Shield' },
   { id: 'aicopilot',  icon: '🤖', label: 'AI Copilot' },
   { id: 'assets',     icon: '◈', label: 'Asset Inventory' },

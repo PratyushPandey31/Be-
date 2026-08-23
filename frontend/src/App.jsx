@@ -12,6 +12,7 @@ import AICopilotDrawer from './components/AICopilotDrawer';
 import FacultyPitchPadModal from './components/FacultyPitchPadModal';
 import MitigationReportModal from './components/MitigationReportModal';
 import ProactiveDefensePanel from './components/ProactiveDefensePanel';
+import SecurityVaultPanel from './components/SecurityVaultPanel';
 
 const API = 'http://127.0.0.1:8000/api';
 
@@ -150,6 +151,7 @@ export default function App() {
         ) : (
           <div className="anim-fadeup">
             {tab==='dashboard'  && <Dashboard stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)} onResolve={handleResolve} />}
+            {tab==='vault'      && <SecurityVaultPanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
             {tab==='proactive'  && <ProactiveDefensePanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
             {tab==='aicopilot'  && <AICopilotDrawer API={API} onClose={()=>setTab('dashboard')} onResolve={handleResolve} />}
             {tab==='assets'     && <AssetManager assets={assets} onCreate={createAsset} risks={risks}/>}
