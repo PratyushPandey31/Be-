@@ -4,6 +4,146 @@ const M = { fontFamily:"'JetBrains Mono',monospace" };
 const TC = { CRITICAL:'#ef4444', HIGH:'#f97316', MEDIUM:'#f59e0b', LOW:'#10b981' };
 const TIERS = ['ALL','CRITICAL','HIGH','MEDIUM','LOW'];
 
+/* ─── useAIStream hook inline ─── */
+function useAIStream() {
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const stream = async (prompt, model = 'cybershield-neural-v3') => {
+    setText(''); setLoading(true); setDone(false);
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/ai/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, model_id: model, deep_search_depth: 'fast' })
+      });
+      if (!res.ok || !res.body) throw new Error();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done: d } = await reader.read();
+        if (d) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() ?? '';
+        for (const part of parts) {
+          if (!part.trim()) continue;
+          let evtType = '', dataStr = '';
+          for (const line of part.split('\n')) {
+            if (line.startsWith('event: ')) evtType = line.slice(7).trim();
+            if (line.startsWith('data: '))  dataStr = line.slice(6).trim();
+          }
+          if (evtType === 'token' && dataStr) {
+            try { const p = JSON.parse(dataStr); setText(prev => prev + p.token); } catch {}
+          }
+        }
+      }
+    } catch {}
+    finally { setLoading(false); setDone(true); }
+  };
+
+  return { text, loading, done, stream, reset: () => { setText(''); setDone(false); } };
+}
+
+/* ── Clean AI Markdown Formatter ── */
+function FormattedAIText({ text, accentColor = '#00f0ff' }) {
+  if (!text) return null;
+  const lines = text.split('\n');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {lines.map((line, lIdx) => {
+        if (!line.trim()) return <div key={lIdx} style={{ height: 3 }} />;
+        const isBullet = line.trim().startsWith('* ') || line.trim().startsWith('- ') || line.trim().startsWith('• ');
+        const cleanLine = isBullet ? line.trim().replace(/^[\*\-\•]\s+/, '') : line;
+
+        const parts = [];
+        const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+        let lastIndex = 0;
+        let match;
+        let pIdx = 0;
+
+        while ((match = regex.exec(cleanLine)) !== null) {
+          if (match.index > lastIndex) {
+            parts.push(<span key={pIdx++}>{cleanLine.substring(lastIndex, match.index)}</span>);
+          }
+          const m = match[0];
+          if (m.startsWith('**') && m.endsWith('**')) {
+            parts.push(
+              <strong key={pIdx++} style={{ color: accentColor, fontWeight: 800 }}>
+                {m.slice(2, -2)}
+              </strong>
+            );
+          } else if (m.startsWith('`') && m.endsWith('`')) {
+            parts.push(
+              <code key={pIdx++} style={{ background: 'rgba(0,240,255,0.12)', color: '#67e8f9', padding: '1px 5px', borderRadius: 4, fontFamily: "'JetBrains Mono',monospace", border: '1px solid rgba(0,240,255,0.25)' }}>
+                {m.slice(1, -1)}
+              </code>
+            );
+          }
+          lastIndex = match.index + m.length;
+        }
+
+        if (lastIndex < cleanLine.length) {
+          parts.push(<span key={pIdx++}>{cleanLine.substring(lastIndex)}</span>);
+        }
+
+        return (
+          <div key={lIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: isBullet ? 6 : 0, lineHeight: 1.65 }}>
+            {isBullet && <span style={{ color: accentColor, fontSize: '.72rem', marginTop: 1 }}>▸</span>}
+            <div style={{ flex: 1 }}>{parts.length > 0 ? parts : cleanLine}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── Inline AI Explain Box per row ─── */
+function AIExplainBox({ text, loading, done, color = '#00f0ff' }) {
+  if (!text && !loading) return null;
+  return (
+    <tr>
+      <td colSpan={8} style={{ padding: 0 }}>
+        <div style={{
+          padding: '12px 20px',
+          background: `linear-gradient(135deg, ${color}06, rgba(0,0,0,0.4))`,
+          borderTop: `1px solid ${color}25`,
+          borderBottom: `1px solid ${color}15`,
+          display: 'flex', flexDirection: 'column', gap: 4
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <span style={{ fontSize: '.85rem', animation: loading ? 'pulse 1s infinite' : 'none' }}>🤖</span>
+            <span style={{ ...M, fontSize: '.62rem', fontWeight: 800, color, letterSpacing: .5 }}>
+              ROBO AI CyberShield Neural Engine v3.0 — Live Inference
+            </span>
+            {loading && (
+              <span style={{ ...M, fontSize: '.56rem', color, background: `${color}15`, border: `1px solid ${color}40`, padding: '1px 7px', borderRadius: 4, fontWeight: 800 }}>
+                ● STREAMING
+              </span>
+            )}
+            {done && !loading && (
+              <span style={{ ...M, fontSize: '.56rem', color: '#34d399' }}>✓ Analysis complete</span>
+            )}
+          </div>
+          <div style={{ ...M, fontSize: '.74rem', color: '#a5f3fc', lineHeight: 1.7, margin: 0 }}>
+            <FormattedAIText text={text} accentColor={color} />
+            {loading && (
+              <span style={{
+                display: 'inline-block', width: 6, height: 12,
+                background: color, marginLeft: 3, verticalAlign: 'middle',
+                animation: 'pulse .55s infinite', boxShadow: `0 0 8px ${color}`
+              }} />
+            )}
+          </div>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 /* ─── Expandable Detail Row ─── */
 function DetailRow({ r, onResolve }) {
   const shap = Object.entries(r.ai_risk.shap_attribution);
@@ -72,22 +212,12 @@ function DetailRow({ r, onResolve }) {
                 <button
                   onClick={() => onResolve(r.finding_id, r)}
                   style={{
-                    marginTop: 10,
-                    width: '100%',
-                    padding: '8px 14px',
-                    borderRadius: 8,
+                    marginTop: 10, width: '100%', padding: '8px 14px', borderRadius: 8,
                     background: 'linear-gradient(135deg, #10b981, #059669)',
-                    color: '#fff',
-                    ...M,
-                    fontSize: '.72rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    border: 'none',
+                    color: '#fff', ...M, fontSize: '.72rem', fontWeight: 800,
+                    cursor: 'pointer', border: 'none',
                     boxShadow: '0 2px 12px rgba(16,185,129,.35)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
                   }}
                 >
                   🛡️ Execute Patch &amp; Generate Audit Report →
@@ -108,11 +238,16 @@ function DetailRow({ r, onResolve }) {
 }
 
 export default function RiskPrioritizer({ risks, onXai, onResolve }) {
-  const [tier, setTier]       = useState('ALL');
-  const [minCvss, setMin]     = useState(0);
-  const [q, setQ]             = useState('');
-  const [sortBy, setSortBy]   = useState('score');
-  const [expanded, setExpanded] = useState(null); // finding_id
+  const [tier, setTier]         = useState('ALL');
+  const [minCvss, setMin]       = useState(0);
+  const [q, setQ]               = useState('');
+  const [sortBy, setSortBy]     = useState('score');
+  const [expanded, setExpanded] = useState(null);
+
+  // Per-row AI explanation state
+  const [aiTexts, setAiTexts]     = useState({});
+  const [aiLoading, setAiLoading] = useState({});
+  const [aiDone, setAiDone]       = useState({});
 
   const list = useMemo(() => {
     let res = risks.filter(r => {
@@ -134,6 +269,50 @@ export default function RiskPrioritizer({ risks, onXai, onResolve }) {
   }, [risks, tier, minCvss, q, sortBy]);
 
   const toggle = (id) => setExpanded(prev => prev===id ? null : id);
+
+  /* ─── Stream AI explanation for a single row ─── */
+  const streamAIWhy = async (findingId, cveId, assetName, cvss, epss, riskScore, rank) => {
+    setAiLoading(prev => ({ ...prev, [findingId]: true }));
+    setAiTexts(prev => ({ ...prev, [findingId]: '' }));
+    setAiDone(prev => ({ ...prev, [findingId]: false }));
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/ai/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `You are CyberShield AI. In exactly 2 sharp sentences, explain why ${cveId} on ${assetName} (CVSS ${cvss}, EPSS ${(epss*100).toFixed(1)}%, AI Risk Score ${riskScore}/100) is ranked #${rank} and what the SecOps team must do immediately.`,
+          model_id: 'cybershield-neural-v3',
+          deep_search_depth: 'fast'
+        })
+      });
+      if (!res.ok || !res.body) throw new Error();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() ?? '';
+        for (const part of parts) {
+          if (!part.trim()) continue;
+          let evtType = '', dataStr = '';
+          for (const line of part.split('\n')) {
+            if (line.startsWith('event: ')) evtType = line.slice(7).trim();
+            if (line.startsWith('data: '))  dataStr = line.slice(6).trim();
+          }
+          if (evtType === 'token' && dataStr) {
+            try { const p = JSON.parse(dataStr); setAiTexts(prev => ({ ...prev, [findingId]: (prev[findingId] || '') + p.token })); } catch {}
+          }
+        }
+      }
+    } catch {}
+    finally {
+      setAiLoading(prev => ({ ...prev, [findingId]: false }));
+      setAiDone(prev => ({ ...prev, [findingId]: true }));
+    }
+  };
 
   const exportCSV = () => {
     const h = ['CVE_ID','Vulnerability_Title','CWE','Asset_Name','IP','Exposure','Criticality','CVSS','EPSS%','Exploit','AI_Risk_Score','Tier','Priority','Finding_ID'];
@@ -173,17 +352,9 @@ export default function RiskPrioritizer({ risks, onXai, onResolve }) {
               className="btn btn-sm"
               style={{
                 background: 'linear-gradient(135deg, #00D26A, #005A9C)',
-                color: '#fff',
-                fontWeight: 800,
-                padding: '6px 12px',
-                borderRadius: 8,
-                border: 'none',
-                fontSize: '.72rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-                boxShadow: '0 0 14px rgba(0,210,106,0.35)'
+                color: '#fff', fontWeight: 800, padding: '6px 12px',
+                borderRadius: 8, border: 'none', fontSize: '.72rem', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 5, boxShadow: '0 0 14px rgba(0,210,106,0.35)'
               }}
             >
               📥 Download Accuracy Audit (PDF)
@@ -246,7 +417,7 @@ export default function RiskPrioritizer({ risks, onXai, onResolve }) {
                 <th>CVSS / EPSS</th>
                 <th>AI Risk Score</th>
                 <th>Tier &amp; Priority</th>
-                <th>XAI Action</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -254,6 +425,8 @@ export default function RiskPrioritizer({ risks, onXai, onResolve }) {
                 const tier2 = r.ai_risk.threat_tier;
                 const tc = TC[tier2];
                 const isExp = expanded === r.finding_id;
+                const hasAI = aiTexts[r.finding_id] || aiLoading[r.finding_id];
+
                 return (
                   <React.Fragment key={r.finding_id}>
                     <tr className={isExp ? 'expanded' : ''} style={{ borderLeft:`2px solid ${isExp?tc:'transparent'}`, transition:'all .15s' }}>
@@ -300,18 +473,44 @@ export default function RiskPrioritizer({ risks, onXai, onResolve }) {
                       </td>
                       <td>
                         <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                          {/* 🤖 AI Why? — streams inline below the row */}
+                          <button
+                            onClick={() => streamAIWhy(r.finding_id, r.vulnerability.cve_id, r.asset.name, r.vulnerability.cvss, r.vulnerability.epss, r.ai_risk.risk_score, i+1)}
+                            style={{
+                              padding:'5px 12px', borderRadius:7,
+                              border: aiLoading[r.finding_id] ? '1.5px solid #00f0ff' : '1px solid rgba(0,240,255,0.4)',
+                              background: aiLoading[r.finding_id] ? 'rgba(0,240,255,0.15)' : 'rgba(0,240,255,0.07)',
+                              color:'#67e8f9', ...M, fontSize:'.69rem', cursor:'pointer',
+                              whiteSpace:'nowrap', fontWeight:800,
+                              animation: aiLoading[r.finding_id] ? 'pulse 1s infinite' : 'none',
+                              boxShadow: aiLoading[r.finding_id] ? '0 0 10px rgba(0,240,255,0.3)' : 'none'
+                            }}
+                          >
+                            {aiLoading[r.finding_id] ? '⚡ Analyzing…' : '🤖 AI Why?'}
+                          </button>
+
                           <button onClick={()=>onXai(r)} style={{
-                            padding:'5px 12px', borderRadius:7, border:'1px solid rgba(0,240,255,0.3)',
-                            background:'rgba(0,240,255,0.07)', color:'#67e8f9',
+                            padding:'5px 12px', borderRadius:7, border:'1px solid rgba(139,92,246,0.4)',
+                            background:'rgba(139,92,246,0.08)', color:'#c4b5fd',
                             ...M, fontSize:'.69rem', cursor:'pointer', whiteSpace:'nowrap', fontWeight:600
                           }}>🧠 Explain XAI</button>
+
                           {onResolve && (
-                            <button onClick={()=>onResolve(r.finding_id, r)} style={{
-                              padding:'5px 12px', borderRadius:7, border:'1px solid rgba(16,185,129,0.4)',
-                              background:'rgba(16,185,129,0.12)', color:'#34d399',
-                              ...M, fontSize:'.69rem', cursor:'pointer', whiteSpace:'nowrap', fontWeight:700
-                            }}>🛡️ Mitigate</button>
+                            <button
+                              onClick={() => onResolve(r.finding_id, r)}
+                              style={{
+                                padding: '6px 13px', borderRadius: 7, border: '1.5px solid #10b981',
+                                background: 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35))',
+                                color: '#34d399', ...M, fontSize: '.71rem', cursor: 'pointer',
+                                whiteSpace: 'nowrap', fontWeight: 800,
+                                boxShadow: '0 0 12px rgba(16,185,129,0.35)',
+                                display: 'flex', alignItems: 'center', gap: 5
+                              }}
+                            >
+                              <span>⚡</span> Auto-Fix &amp; Mitigate
+                            </button>
                           )}
+
                           <button onClick={()=>toggle(r.finding_id)} style={{
                             padding:'5px 12px', borderRadius:7, border:'1px solid rgba(255,255,255,0.1)',
                             background:'rgba(255,255,255,0.04)', color:'#94a3b8',
@@ -320,6 +519,17 @@ export default function RiskPrioritizer({ risks, onXai, onResolve }) {
                         </div>
                       </td>
                     </tr>
+
+                    {/* 🤖 AI Why? streaming inline box */}
+                    {hasAI && (
+                      <AIExplainBox
+                        text={aiTexts[r.finding_id] || ''}
+                        loading={aiLoading[r.finding_id] || false}
+                        done={aiDone[r.finding_id] || false}
+                        color={tc}
+                      />
+                    )}
+
                     {isExp && <DetailRow r={r} onResolve={onResolve}/>}
                   </React.Fragment>
                 );

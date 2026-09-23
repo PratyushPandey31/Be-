@@ -225,8 +225,38 @@ HONEYPOT_DECOYS = [
         "ip_address": "10.0.99.102",
         "decoy_service": "Simulated AWS S3 Access Keys in Fake Codebase",
         "status": "ARMED & LISTENING",
-        "trapped_attackers_count": 1,
+        "trapped_attackers_count": 2,
         "last_trigger": "2026-08-22 18:40:11 from IP 203.0.113.88 (Quarantined)",
         "action": "API Token auto-expired & Intruder IP Blacklisted"
+    },
+    {
+        "id": "HONEY-03",
+        "name": "CANARY-K8S-SECRETS-03",
+        "ip_address": "10.0.99.105",
+        "decoy_service": "Fake Kubernetes ServiceAccount Bearer Token",
+        "status": "ARMED & LISTENING",
+        "trapped_attackers_count": 6,
+        "last_trigger": "2026-08-25 14:12:09 from IP 185.220.101.5 (Quarantined)",
+        "action": "Kubernetes RBAC policy auto-isolated in 0.08s"
+    },
+    {
+        "id": "HONEY-04",
+        "name": "DECOY-RDP-GATEWAY-04",
+        "ip_address": "10.0.99.108",
+        "decoy_service": "Simulated Windows RDP Port 3389 Honeypot",
+        "status": "ARMED & LISTENING",
+        "trapped_attackers_count": 9,
+        "last_trigger": "2026-08-26 04:30:19 from IP 45.154.255.12 (Quarantined)",
+        "action": "Brute-force attacker IP dropped & blackholed"
+    },
+    {
+        "id": "HONEY-05",
+        "name": "DECOY-AI-MODEL-WEIGHTS-05",
+        "ip_address": "10.0.99.112",
+        "decoy_service": "Simulated PyTorch LLM Model Checkpoints S3 Bucket",
+        "status": "ARMED & LISTENING",
+        "trapped_attackers_count": 3,
+        "last_trigger": "2026-08-25 21:05:44 from IP 91.240.118.204 (Quarantined)",
+        "action": "AI Weight Exfiltration Probe Neutralized in 0.05s"
     }
 ]

@@ -10,6 +10,9 @@ import XAIDrawer from './components/XAIDrawer';
 import AICopilotDrawer from './components/AICopilotDrawer';
 import FacultyPitchPadModal from './components/FacultyPitchPadModal';
 import MitigationReportModal from './components/MitigationReportModal';
+import AttackGraphSimulatorModal from './components/AttackGraphSimulatorModal';
+import GlobalThreatMapModal from './components/GlobalThreatMapModal';
+import AutonomousWarRoomModal from './components/AutonomousWarRoomModal';
 import ProactiveDefensePanel from './components/ProactiveDefensePanel';
 import SecurityVaultPanel from './components/SecurityVaultPanel';
 import LoginPage from './components/LoginPage';
@@ -39,6 +42,9 @@ export default function App() {
   const [scanning, setScanning]     = useState(false);
   const [showCopilot, setShowCopilot]   = useState(false);
   const [showPitchPad, setShowPitchPad] = useState(false);
+  const [showAttackGraph, setShowAttackGraph] = useState(false);
+  const [showThreatMap, setShowThreatMap]     = useState(false);
+  const [showWarRoom, setShowWarRoom]         = useState(false);
   const [mitigationReport, setMitigationReport]     = useState(null);
   const [showMitigationModal, setShowMitigationModal] = useState(false);
 
@@ -51,6 +57,12 @@ export default function App() {
     const savedToken = localStorage.getItem('cybershield_token');
     if (savedUser && savedToken) {
       try { setUser(JSON.parse(savedUser)); } catch { }
+    } else {
+      // Auto-load default authenticated lead session
+      const defaultUser = { username: 'admin', role: 'SecOps Lead Analyst', full_name: 'Lead SecOps Engineer' };
+      setUser(defaultUser);
+      localStorage.setItem('cybershield_user', JSON.stringify(defaultUser));
+      localStorage.setItem('cybershield_token', 'demo-auto-session-token');
     }
     setAuthChecked(true);
   }, []);
@@ -144,6 +156,9 @@ export default function App() {
         tab={tab} setTab={setTab} online={online} stats={stats} scanning={scanning}
         user={user} onLogout={handleLogout}
         onOpenPitchPad={() => setShowPitchPad(true)}
+        onOpenAttackGraph={() => setShowAttackGraph(true)}
+        onOpenThreatMap={() => setShowThreatMap(true)}
+        onOpenWarRoom={() => setShowWarRoom(true)}
       />
 
       <main style={s.main}>
@@ -159,7 +174,7 @@ export default function App() {
           </div>
         ) : (
           <div className="anim-fadeup">
-            {tab === 'dashboard'  && <Dashboard  stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)} onResolve={handleResolve} />}
+            {tab === 'dashboard'  && <Dashboard user={user} stats={stats} risks={risks} goto={setTab} onOpenCopilot={() => setShowCopilot(true)} onOpenPitchPad={() => setShowPitchPad(true)} onResolve={handleResolve} />}
             {tab === 'vault'      && <SecurityVaultPanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
             {tab === 'proactive'  && <ProactiveDefensePanel API={API} onOpenPitchPad={() => setShowPitchPad(true)} />}
             {tab === 'aicopilot'  && <AICopilotDrawer API={API} onClose={() => setTab('dashboard')} onResolve={handleResolve} />}
@@ -210,6 +225,24 @@ export default function App() {
         isOpen={showMitigationModal}
         onClose={() => setShowMitigationModal(false)}
         reportData={mitigationReport}
+      />
+
+      {showAttackGraph && (
+        <AttackGraphSimulatorModal
+          API={API}
+          onClose={() => setShowAttackGraph(false)}
+        />
+      )}
+
+      {showThreatMap && (
+        <GlobalThreatMapModal
+          onClose={() => setShowThreatMap(false)}
+        />
+      )}
+
+      <AutonomousWarRoomModal
+        isOpen={showWarRoom}
+        onClose={() => setShowWarRoom(false)}
       />
     </div>
   );

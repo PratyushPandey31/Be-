@@ -1,5 +1,23 @@
 import React, { useState, useMemo } from 'react';
 
+/* ─── AI Badge Helper (outside component) ─── */
+function getAssetAIBadge(asset, risks) {
+  const myRisks = risks.filter(r => r.asset.id === asset.id || r.asset.name === asset.name);
+  if (myRisks.length === 0) {
+    return { text: '✅ ROBO AI: No active vulnerabilities detected. Asset posture: Secure.', color: '#34d399' };
+  }
+  const topScore = Math.max(...myRisks.map(r => r.ai_risk.risk_score));
+  const topCVE = myRisks.find(r => r.ai_risk.risk_score === topScore)?.vulnerability?.cve_id;
+  const critCount = myRisks.filter(r => r.ai_risk.threat_tier === 'CRITICAL').length;
+  if (topScore > 80) {
+    return { text: '🚨 ROBO AI: ' + critCount + ' critical CVEs including ' + topCVE + ' (Risk: ' + topScore + '/100). Mission-critical exposure — immediate isolation and patching required.', color: '#f87171' };
+  } else if (topScore > 50) {
+    return { text: '⚠️ ROBO AI: ' + myRisks.length + ' active findings including ' + topCVE + ' (Risk: ' + topScore + '/100). High-priority patching within 24h recommended.', color: '#fbbf24' };
+  } else {
+    return { text: '🔵 ROBO AI: ' + myRisks.length + ' managed findings. Highest risk ' + topScore + '/100. Schedule patch in next maintenance window.', color: '#67e8f9' };
+  }
+}
+
 const M = { fontFamily: "'JetBrains Mono',monospace" };
 const TC = { CRITICAL: '#ef4444', HIGH: '#f97316', MEDIUM: '#f59e0b', LOW: '#10b981' };
 const CRITS = ['Mission Critical', 'High', 'Medium', 'Low'];
@@ -116,20 +134,73 @@ function AssetDetail({ asset, risks, onClose }) {
   );
 }
 
-export default function AssetManager({ assets, onCreate, risks = [] }) {
+export default function AssetManager({ assets = [], onCreate, risks = [] }) {
   const [showAdd, setShowAdd]     = useState(false);
   const [sel, setSel]             = useState(null);
   const [filterCrit, setFC]       = useState('ALL');
   const [filterZone, setFZ]       = useState('ALL');
-  const [filterScope, setScope]   = useState('ALL'); // ALL | PAN | LAN | MAN | WAN
+  const [filterScope, setScope]   = useState('ALL');
   const [search, setSearch]       = useState('');
   const [form, setForm]           = useState(blank);
   const [saving, setSaving]       = useState(false);
   const [err, setErr]             = useState('');
+  const [assetAITexts, setAssetAITexts]   = useState({});
+  const [assetAILoading, setAssetAILoading] = useState({});
+  const [quarantinedAssets, setQuarantinedAssets] = useState([]);
+  const [selectedTopologyNode, setSelectedTopologyNode] = useState(null);
 
-  // Auto-tag network scopes based on IP and naming
+  const toggleQuarantine = (assetId, e) => {
+    e?.stopPropagation();
+    setQuarantinedAssets(prev =>
+      prev.includes(assetId) ? prev.filter(id => id !== assetId) : [...prev, assetId]
+    );
+  };
+
+  const streamAssetAI = async (asset, risks) => {
+    const key = asset.id || asset.name;
+    setAssetAILoading(prev => ({ ...prev, [key]: true }));
+    setAssetAITexts(prev => ({ ...prev, [key]: '' }));
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/ai/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `You are an AI Security Architect. Provide a 2-sentence rapid risk assessment for asset '${asset.name}' (${asset.ip_address}, ${asset.asset_type}, Criticality: ${asset.criticality}, Zone: ${asset.exposure}). What is the single highest-priority defensive action?`,
+          model_id: 'cybershield-neural-v3',
+          deep_search_depth: 'fast'
+        })
+      });
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split('\n\n');
+        buffer = chunks.pop() || '';
+        for (const chunk of chunks) {
+          if (!chunk.trim()) continue;
+          let evtType = '', dataStr = '';
+          for (const line of chunk.split('\n')) {
+            if (line.startsWith('event: ')) evtType = line.slice(7).trim();
+            if (line.startsWith('data: ')) dataStr = line.slice(6).trim();
+          }
+          if (evtType === 'token' && dataStr) {
+            try {
+              const p = JSON.parse(dataStr);
+              setAssetAITexts(prev => ({ ...prev, [key]: (prev[key] || '') + p.token }));
+            } catch {}
+          }
+        }
+      }
+    } catch(e) { console.error(e); }
+    finally { setAssetAILoading(prev => ({ ...prev, [key]: false })); }
+  };
+
   const enrichedAssets = useMemo(() => {
-    return assets.map(a => {
+    return (assets || []).map(a => {
+      if (a.network_scope) return { ...a, computed_scope: a.network_scope };
       let scope = 'LAN';
       const ip = a.ip_address || '';
       const nm = (a.name || '').toUpperCase();
@@ -139,8 +210,6 @@ export default function AssetManager({ assets, onCreate, risks = [] }) {
         scope = 'MAN';
       } else if (ip.startsWith('192.168.99.') || ip.startsWith('192.168.20.') || nm.includes('RUNNER') || nm.includes('WORKSTATION') || nm.includes('PAN')) {
         scope = 'PAN';
-      } else {
-        scope = 'LAN';
       }
       return { ...a, computed_scope: scope };
     });
@@ -153,10 +222,7 @@ export default function AssetManager({ assets, onCreate, risks = [] }) {
       if (filterScope !== 'ALL' && a.computed_scope !== filterScope) return false;
       if (search) {
         const q = search.toLowerCase();
-        return a.name.toLowerCase().includes(q) ||
-               a.ip_address.toLowerCase().includes(q) ||
-               a.asset_type.toLowerCase().includes(q) ||
-               a.owner.toLowerCase().includes(q);
+        return a.name.toLowerCase().includes(q) || a.ip_address.toLowerCase().includes(q) || a.asset_type.toLowerCase().includes(q) || a.owner.toLowerCase().includes(q);
       }
       return true;
     });
@@ -172,87 +238,78 @@ export default function AssetManager({ assets, onCreate, risks = [] }) {
     else setErr('Failed to register asset. Please check fields.');
   };
 
+  const TOPOLOGY_NODES = useMemo(() => {
+    return enrichedAssets.map((a, i) => {
+      const isQuarantined = quarantinedAssets.includes(a.id);
+      const riskCount = risks.filter(r => r.asset.id === a.id || r.asset.name === a.name).length;
+      let x = 80 + (i % 5) * 135;
+      let y = i < 5 ? 70 : 160;
+      return { ...a, x, y, isQuarantined, riskCount, color: isQuarantined ? '#f59e0b' : CC[a.criticality] || '#3b82f6' };
+    });
+  }, [enrichedAssets, quarantinedAssets, risks]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-
-      {/* Network Infrastructure Topology Card (PAN / LAN / MAN / WAN) */}
-      <div className="card" style={{
-        padding: '20px 24px',
-        background: 'linear-gradient(135deg, rgba(6, 12, 28, 0.95), rgba(15, 23, 42, 0.95))',
-        border: '1.5px solid rgba(0, 240, 255, 0.25)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+      <div className="card" style={{ padding: '20px 24px', background: 'linear-gradient(135deg, rgba(6, 12, 28, 0.95), rgba(15, 23, 42, 0.95))', border: '1.5px solid rgba(0, 240, 255, 0.25)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: 0 }}>
-              🌐 Multi-Tier Network Scope Infrastructure (PAN &bull; LAN &bull; MAN &bull; WAN)
-            </h3>
-            <p style={{ fontSize: '.72rem', color: '#64748b', margin: '2px 0 0' }}>
-              Deep perimeter segmentation mapping personal hardware, internal corporate nodes, campus datalinks, and cloud ingress.
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: '1.3rem' }}>🌐</span>
+              <h3 style={{ fontSize: '1.08rem', fontWeight: 900, color: '#fff', margin: 0 }}>Holographic Enterprise Asset Topology &amp; Zero-Trust Mesh</h3>
+              <span style={{ ...M, fontSize: '.6rem', color: '#34d399', background: 'rgba(16,185,129,0.15)', border: '1px solid #10b981', padding: '2px 8px', borderRadius: 4, fontWeight: 800 }}>● 100% INVENTORY TELEMETRY</span>
+            </div>
+            <p style={{ fontSize: '.74rem', color: '#94a3b8', margin: 0 }}>Interactive live topology linking personal workstations (PAN), local domain clusters (LAN), campus links (MAN), and WAN edge gateways.</p>
           </div>
-
-          {/* Scope Filters */}
           <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.03)', padding: 3, borderRadius: 8, border: '1px solid rgba(255,255,255,0.07)' }}>
             {SCOPES.map(sc => (
-              <button
-                key={sc}
-                onClick={() => setScope(sc)}
-                style={{
-                  background: filterScope === sc ? 'rgba(0,240,255,0.2)' : 'transparent',
-                  border: filterScope === sc ? '1px solid #00f0ff' : 'none',
-                  color: filterScope === sc ? '#67e8f9' : '#94a3b8',
-                  ...M,
-                  fontSize: '.7rem',
-                  padding: '4px 12px',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  fontWeight: filterScope === sc ? 800 : 400
-                }}
-              >
-                {sc}
-              </button>
+              <button key={sc} onClick={() => setScope(sc)} style={{ background: filterScope === sc ? 'rgba(0,240,255,0.2)' : 'transparent', border: filterScope === sc ? '1px solid #00f0ff' : 'none', color: filterScope === sc ? '#67e8f9' : '#94a3b8', ...M, fontSize: '.7rem', padding: '5px 12px', borderRadius: 6, cursor: 'pointer', fontWeight: filterScope === sc ? 800 : 400 }}>{sc}</button>
             ))}
           </div>
         </div>
 
-        {/* 4 Scope Summary Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-          {[
-            { scope: 'PAN', title: 'Personal Area Net', desc: 'SecOps Workstations & FIDO2 Vaults', cidr: '192.168.99.x', color: '#a855f7', count: enrichedAssets.filter(a => a.computed_scope === 'PAN').length },
-            { scope: 'LAN', title: 'Local Area Net', desc: 'Core Domain Controller & SQL Cluster', cidr: '172.16.0.0/24', color: '#3b82f6', count: enrichedAssets.filter(a => a.computed_scope === 'LAN').length },
-            { scope: 'MAN', title: 'Metropolitan Area Net', desc: 'Plant 4 SCADA & Inter-Campus Fiber', cidr: '172.16.80.0/20', color: '#06b6d4', count: enrichedAssets.filter(a => a.computed_scope === 'MAN').length },
-            { scope: 'WAN', title: 'Wide Area Net', desc: 'AWS us-east-1 & Citrix Edge DMZ', cidr: '10.0.1.0/24', color: '#ef4444', count: enrichedAssets.filter(a => a.computed_scope === 'WAN').length },
-          ].map(z => (
-            <div
-              key={z.scope}
-              onClick={() => setScope(filterScope === z.scope ? 'ALL' : z.scope)}
-              style={{
-                background: `rgba(255,255,255,0.02)`,
-                border: filterScope === z.scope ? `1.5px solid ${z.color}` : '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 10,
-                padding: '12px 14px',
-                cursor: 'pointer',
-                transition: 'all .15s'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ ...M, fontSize: '.72rem', fontWeight: 800, color: z.color }}>{z.scope} ZONE</span>
-                <span style={{ ...M, fontSize: '1.2rem', fontWeight: 900, color: '#fff' }}>{z.count} Nodes</span>
-              </div>
-              <p style={{ fontSize: '.76rem', fontWeight: 700, color: '#f1f5f9', margin: '4px 0 2px' }}>{z.title}</p>
-              <p style={{ fontSize: '.65rem', color: '#64748b', margin: 0 }}>{z.desc}</p>
-              <p style={{ ...M, fontSize: '.62rem', color: z.color, marginTop: 4 }}>Subnet: {z.cidr}</p>
-            </div>
-          ))}
+        <div style={{ background: 'radial-gradient(circle at center, rgba(15,23,42,0.9), rgba(2,6,20,0.98))', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 12, position: 'relative', overflow: 'hidden', boxShadow: 'inset 0 0 30px rgba(0,240,255,0.06)' }}>
+          <svg viewBox="0 0 740 230" style={{ width: '100%', height: 'auto', display: 'block' }}>
+            <defs>
+              <linearGradient id="topoLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(0,240,255,0.4)" />
+                <stop offset="50%" stopColor="rgba(139,92,246,0.3)" />
+                <stop offset="100%" stopColor="rgba(16,185,129,0.4)" />
+              </linearGradient>
+            </defs>
+            {TOPOLOGY_NODES.map((n, idx) => {
+              if (idx >= TOPOLOGY_NODES.length - 1) return null;
+              const next = TOPOLOGY_NODES[idx + 1];
+              return <line key={`line-${idx}`} x1={n.x} y1={n.y} x2={next.x} y2={next.y} stroke="url(#topoLineGrad)" strokeWidth="1" strokeDasharray="3 3" opacity="0.35" />;
+            })}
+            <line x1="215" y1="70" x2="350" y2="160" stroke="rgba(0,240,255,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+            <line x1="485" y1="70" x2="350" y2="160" stroke="rgba(139,92,246,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+            {TOPOLOGY_NODES.map(n => {
+              const isSelected = selectedTopologyNode?.id === n.id;
+              return (
+                <g key={n.id} onClick={() => { setSelectedTopologyNode(n); setSel(n); }} style={{ cursor: 'pointer' }}>
+                  {n.riskCount > 0 && !n.isQuarantined && (
+                    <circle cx={n.x} cy={n.y} r="22" fill="none" stroke={n.color} strokeWidth="1" opacity="0.6">
+                      <animate attributeName="r" values="16;28;16" dur="2s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.8;0.05;0.8" dur="2s" repeatCount="indefinite" />
+                    </circle>
+                  )}
+                  <circle cx={n.x} cy={n.y} r={isSelected ? "18" : "14"} fill="rgba(15,23,42,0.9)" stroke={n.color} strokeWidth={isSelected ? "3" : "2"} />
+                  <circle cx={n.x} cy={n.y} r="6" fill={n.color} />
+                  <text x={n.x} y={n.y + 24} textAnchor="middle" fill={isSelected ? "#00f0ff" : "#f1f5f9"} fontSize="8.5" fontWeight="800" fontFamily="'JetBrains Mono',monospace">{n.isQuarantined ? '🔒 ' + n.name : n.name}</text>
+                  <text x={n.x} y={n.y + 35} textAnchor="middle" fill="#64748b" fontSize="7.5" fontFamily="'JetBrains Mono',monospace">{n.ip_address}</text>
+                </g>
+              );
+            })}
+          </svg>
         </div>
       </div>
 
-      {/* Control Bar */}
       <div className="card" style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ ...M, fontSize: '.72rem', color: '#67e8f9', fontWeight: 700 }}>
-            {filtered.length} / {assets.length} Assets Active
-          </span>
+          <span style={{ ...M, fontSize: '.72rem', color: '#67e8f9', fontWeight: 700 }}>{filtered.length} / {assets.length} Assets Active</span>
+          {quarantinedAssets.length > 0 && (
+            <span style={{ ...M, fontSize: '.65rem', color: '#f59e0b', background: 'rgba(245,158,11,0.15)', border: '1px solid #f59e0b', padding: '2px 8px', borderRadius: 4, fontWeight: 800 }}>🔒 {quarantinedAssets.length} Quarantined</span>
+          )}
           <select className="inp" style={{ width: 140, padding: '5px 8px' }} value={filterCrit} onChange={e => setFC(e.target.value)}>
             <option value="ALL">All Criticalities</option>
             {CRITS.map(c => <option key={c} value={c}>{c}</option>)}
@@ -261,27 +318,19 @@ export default function AssetManager({ assets, onCreate, risks = [] }) {
             <option value="ALL">All Exposure Zones</option>
             {ZONES.map(z => <option key={z} value={z}>{z}</option>)}
           </select>
-          <input
-            className="inp"
-            style={{ width: 190, padding: '5px 10px' }}
-            placeholder="🔍 Search name, IP, OS…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <input className="inp" style={{ width: 190, padding: '5px 10px' }} placeholder="🔍 Search name, IP, OS…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-
-        <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>
-          + Register New Asset
-        </button>
+        <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>+ Register New Asset</button>
       </div>
 
-      {/* Asset Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
         {filtered.map(a => {
           const critColor = CC[a.criticality] || '#94a3b8';
           const zoneColor = ZC[a.exposure] || '#94a3b8';
           const scopeColor = SCOPE_COLORS[a.computed_scope] || '#3b82f6';
           const count = risks.filter(r => r.asset.id === a.id || r.asset.name === a.name).length;
+          const badge = getAssetAIBadge(a, risks);
+          const aiKey = a.id || a.name;
 
           return (
             <div
@@ -315,7 +364,43 @@ export default function AssetManager({ assets, onCreate, risks = [] }) {
                 </div>
 
                 <p style={{ ...M, fontSize: '.78rem', color: '#67e8f9', margin: '0 0 4px' }}>{a.ip_address}</p>
-                <p style={{ fontSize: '.72rem', color: '#94a3b8', margin: 0 }}>{a.asset_type} &bull; {a.os_info}</p>
+                <p style={{ fontSize: '.72rem', color: '#94a3b8', margin: '0 0 8px' }}>{a.asset_type} &bull; {a.os_info}</p>
+
+                {/* AI Risk Advisory Badge */}
+                <div style={{ marginBottom: 8 }} onClick={e => e.stopPropagation()}>
+                  <div style={{ background: badge.color === '#f87171' ? 'rgba(239,68,68,0.08)' : badge.color === '#fbbf24' ? 'rgba(245,158,11,0.08)' : 'rgba(0,240,255,0.06)', border: `1px solid ${badge.color}35`, borderRadius: 7, padding: '7px 10px', marginBottom: 6 }}>
+                    <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize: '.64rem', color: badge.color, lineHeight: 1.5, margin: 0 }}>{badge.text}</p>
+                  </div>
+                  {(assetAITexts[aiKey] || assetAILoading[aiKey]) ? (
+                    <div style={{ background:'rgba(0,240,255,0.04)', border:'1px solid rgba(0,240,255,0.2)', borderRadius:7, padding:'8px 10px', marginBottom:4 }}>
+                      <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'.64rem', color:'#a5f3fc', lineHeight:1.5, margin:0 }}>
+                        {assetAITexts[aiKey]}
+                        {assetAILoading[aiKey] && <span style={{ display:'inline-block', width:5, height:11, background:'#00f0ff', marginLeft:3, verticalAlign:'middle', animation:'pulse .6s infinite' }} />}
+                      </p>
+                    </div>
+                  ) : null}
+                  <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                    <button onClick={() => streamAssetAI(a, risks)} disabled={assetAILoading[aiKey]} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'.62rem', color:'#67e8f9', background:'rgba(0,240,255,0.07)', border:'1px solid rgba(0,240,255,0.25)', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontWeight:700 }}>
+                      {assetAILoading[aiKey] ? '⚡ ROBO AI Analyzing…' : '🤖 AI Audit'}
+                    </button>
+                    <button
+                      onClick={(e) => toggleQuarantine(a.id, e)}
+                      style={{
+                        flex: 1,
+                        background: quarantinedAssets.includes(a.id)
+                          ? 'rgba(239,68,68,0.2)'
+                          : 'rgba(255,255,255,0.04)',
+                        border: quarantinedAssets.includes(a.id)
+                          ? '1px solid #ef4444'
+                          : '1px solid rgba(255,255,255,0.1)',
+                        color: quarantinedAssets.includes(a.id) ? '#f87171' : '#cbd5e1',
+                        padding: '4px 8px', borderRadius: 6, cursor: 'pointer', ...M, fontSize: '.62rem', fontWeight: 700
+                      }}
+                    >
+                      {quarantinedAssets.includes(a.id) ? '🚨 ISOLATED' : '🔒 Quarantine'}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 10 }}>

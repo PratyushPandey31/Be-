@@ -25,3 +25,20 @@ yarn-debug.log*
 .DS_Store
 .vscode/
 .idea/
+
+# Unrelated personal portfolios & CV generation
+maneesh-portfolio/
+*_CV*
+*_Resume*
+build_*_resume.py
+create_*_cv.py
+preview_*.png
+cv_preview_*.png
+elab_preview_*.png
+pdf_images/
+template_images/
+backend/template_images/
+backend/turnitin_assets/
+test_*.pdf
+test_*.py
+test_*.doc*

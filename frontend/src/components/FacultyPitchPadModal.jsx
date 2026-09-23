@@ -4,6 +4,7 @@ const M = { fontFamily: "'JetBrains Mono', monospace" };
 
 const TAB_DEFS = [
   { id: 'viva_pitch',   label: '🗣️ Viva Pitch',      sub: '30-Second Script' },
+  { id: 'ai_examiner',  label: '🎓 AI Viva Examiner', sub: 'Live Q&A Simulator' },
   { id: 'how_it_works', label: '🧠 How It Works',     sub: 'Step-by-Step Simple' },
   { id: 'real_example', label: '🆚 Why Nessus Fails', sub: '4 Real Case Studies' },
   { id: 'qa_guide',     label: '❓ Faculty Q&A',      sub: '10 Tough Questions' },
@@ -86,7 +87,66 @@ export default function FacultyPitchPadModal({ isOpen, onClose, onNavigateTab })
   const [exp,  setExp]            = useState('Internet Facing');
   const [hasExploit, setHasExploit] = useState(true);
 
+  const [examinerQ, setExaminerQ] = useState('Why did you choose a multiplicative risk formulation rather than a simple weighted linear average?');
+  const [examinerA, setExaminerA] = useState("In cybersecurity risk modeling, risk is an emergent conjunct probability. If an asset is completely isolated / air-gapped (W_exp = 0.60) or has zero real-world exploitability (EPSS = 0.01), a linear sum artificially keeps the risk elevated due to a high CVSS base score alone. Multiplicative scaling ensures that if any gating prerequisite is near zero, the overall risk is derated proportionally, eliminating 94.6% of alert fatigue.");
+  const [examinerLoading, setExaminerLoading] = useState(false);
+
   if (!isOpen) return null;
+
+  const EXAMINER_QUESTIONS = [
+    'Why did you choose a multiplicative risk formulation rather than a simple weighted linear average?',
+    'How does CyberShield AI guarantee that EPSS scores from FIRST.org cannot be spoofed or poisoned?',
+    'What is the mathematical justification for using Additive SHAP feature values in an operational SOC?',
+    'How does your system handle zero-day vulnerabilities that have no CVE or NVD entry yet?',
+    'Explain the computational complexity of your Merkle blockchain ledger compared to standard relational DB audit logs.'
+  ];
+
+  const triggerExaminerQuestion = async (customQ = null) => {
+    const q = customQ || EXAMINER_QUESTIONS[Math.floor(Math.random() * EXAMINER_QUESTIONS.length)];
+    setExaminerQ(q);
+    setExaminerA('');
+    setExaminerLoading(true);
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/ai/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `You are an IEEE Viva Examiner defense coach. For the technical examiner question: '${q}', provide the ultimate A+ academic viva defense answer. Include formula logic, empirical citations (99.4% precision, 94.6% noise reduction), and solid mathematical rigor in 3 crisp paragraphs.`,
+          model_id: 'claude-3.7-sonnet',
+          deep_search_depth: 'fast'
+        })
+      });
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split('\n\n');
+        buffer = chunks.pop() || '';
+        for (const chunk of chunks) {
+          if (!chunk.trim()) continue;
+          let evtType = '', dataStr = '';
+          for (const line of chunk.split('\n')) {
+            if (line.startsWith('event: ')) evtType = line.slice(7).trim();
+            if (line.startsWith('data: '))  dataStr = line.slice(6).trim();
+          }
+          if (evtType === 'token' && dataStr) {
+            try {
+              const p = JSON.parse(dataStr);
+              setExaminerA(prev => prev + p.token);
+            } catch {}
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setExaminerLoading(false);
+    }
+  };
 
   const wc   = W_CRIT[crit] || 1.0;
   const we   = W_EXP[exp]   || 1.0;
@@ -254,6 +314,85 @@ export default function FacultyPitchPadModal({ isOpen, onClose, onNavigateTab })
                       <div style={{ fontSize: '.62rem', color: '#64748b', whiteSpace: 'nowrap' }}>{n.desc}</div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ TAB: AI VIVA EXAMINER SIMULATOR ═══ */}
+          {tab === 'ai_examiner' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <SectionTitle icon="🎓" title="Autonomous AI Viva Examiner &amp; Faculty Q&amp;A Simulator"
+                subtitle="Test your defense with realistic tough faculty examiner questions and instant A+ model answers." />
+
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(139,92,246,0.12), rgba(0,240,255,0.06))',
+                border: '1.5px solid rgba(139,92,246,0.4)', borderRadius: 14, padding: '20px 24px',
+                display: 'flex', flexDirection: 'column', gap: 12
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: '1.3rem', animation: examinerLoading ? 'pulse 1s infinite' : 'none' }}>👨‍🏫</span>
+                    <div>
+                      <p style={{ ...M, fontSize: '.64rem', color: '#c4b5fd', fontWeight: 800, margin: 0, textTransform: 'uppercase' }}>
+                        EXTERNAL EXAMINER SIMULATOR MODE
+                      </p>
+                      <h4 style={{ margin: '2px 0 0', fontSize: '1.02rem', fontWeight: 800, color: '#fff' }}>
+                        "{examinerQ}"
+                      </h4>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => triggerExaminerQuestion()}
+                    disabled={examinerLoading}
+                    style={{
+                      background: 'linear-gradient(135deg, #8b5cf6, #00f0ff)',
+                      color: '#000', fontWeight: 900, padding: '9px 18px', borderRadius: 8,
+                      border: 'none', cursor: 'pointer', ...M, fontSize: '.74rem',
+                      boxShadow: '0 0 16px rgba(139,92,246,0.4)'
+                    }}
+                  >
+                    {examinerLoading ? '⚡ Examiner Formulating…' : '🎲 Ask New Random Viva Question'}
+                  </button>
+                </div>
+
+                {/* Preset Viva Questions Chips */}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {EXAMINER_QUESTIONS.map((q, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => triggerExaminerQuestion(q)}
+                      disabled={examinerLoading}
+                      style={{
+                        padding: '4px 10px', borderRadius: 6, ...M, fontSize: '.64rem',
+                        background: examinerQ === q ? 'rgba(0,240,255,0.2)' : 'rgba(255,255,255,0.03)',
+                        border: examinerQ === q ? '1px solid #00f0ff' : '1px solid rgba(255,255,255,0.07)',
+                        color: examinerQ === q ? '#67e8f9' : '#94a3b8', cursor: 'pointer'
+                      }}
+                    >
+                      Q{idx + 1}: {q.split(' ').slice(0, 5).join(' ')}…
+                    </button>
+                  ))}
+                </div>
+
+                {/* AI Winning Defense Answer Box */}
+                <div style={{
+                  background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(0,240,255,0.25)',
+                  borderRadius: 10, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 8
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ ...M, fontSize: '.64rem', color: '#34d399', fontWeight: 800 }}>
+                      🏆 A+ MODEL DEFENSE ANSWER (SPEAK THIS):
+                    </span>
+                    <span style={{ ...M, fontSize: '.58rem', color: '#64748b' }}>
+                      Powered by Claude 3.7 Sonnet Academic Reasoner
+                    </span>
+                  </div>
+                  <p style={{ ...M, fontSize: '.8rem', color: '#f1f5f9', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap' }}>
+                    {examinerA}
+                    {examinerLoading && <span style={{ display: 'inline-block', width: 6, height: 14, background: '#00f0ff', marginLeft: 3, verticalAlign: 'middle', animation: 'pulse .6s infinite' }} />}
+                  </p>
                 </div>
               </div>
             </div>

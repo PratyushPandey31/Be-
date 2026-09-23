@@ -25,7 +25,7 @@ function LiveClock() {
   );
 }
 
-export default function Navbar({ tab, setTab, online, stats, scanning, user, onOpenAuth, onLogout, onOpenPitchPad }) {
+export default function Navbar({ tab, setTab, online, stats, scanning, user, onOpenAuth, onLogout, onOpenPitchPad, onOpenAttackGraph, onOpenThreatMap, onOpenWarRoom }) {
   const crit = stats?.threat_distribution?.CRITICAL || 0;
   const avg  = stats?.average_system_risk || 0;
   const rCol = avg >= 80 ? '#ef4444' : avg >= 60 ? '#f97316' : avg >= 40 ? '#f59e0b' : '#10b981';
@@ -48,38 +48,151 @@ export default function Navbar({ tab, setTab, online, stats, scanning, user, onO
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 62, gap: 12 }}>
 
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => setTab('dashboard')}>
           <div style={{
-            width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,240,255,0.09)', border: '1px solid rgba(0,240,255,0.28)',
-            fontSize: '1.15rem', boxShadow: '0 0 14px rgba(0,240,255,0.18)',
-            animation: 'pulse 2.5s ease infinite'
-          }}>🛡️</div>
+            width: 32, height: 32, borderRadius: 8,
+            background: 'linear-gradient(135deg, rgba(0,240,255,0.2), rgba(139,92,246,0.3))',
+            border: '1.5px solid #00f0ff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1rem', boxShadow: '0 0 12px rgba(0,240,255,0.4)'
+          }}>
+            🛡️
+          </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontWeight: 800, fontSize: '1.02rem', color: '#fff', letterSpacing: '-.3px' }}>CyberShield AI</span>
-              <span style={{ ...M, fontSize: '.6rem', fontWeight: 700, padding: '2px 8px', borderRadius: 5, background: 'rgba(139,92,246,.15)', border: '1px solid rgba(139,92,246,.4)', color: '#c4b5fd' }}>IEEE v1.0</span>
-              {scanning && (
-                <span style={{ ...M, fontSize: '.6rem', fontWeight: 700, padding: '2px 8px', borderRadius: 5, background: 'rgba(0,240,255,.12)', border: '1px solid rgba(0,240,255,.3)', color: '#67e8f9', animation: 'pulse 1s ease infinite' }}>
-                  ◎ SCANNING
-                </span>
-              )}
+            <span style={{ fontWeight: 800, fontSize: '.95rem', letterSpacing: '-0.3px', color: '#fff' }}>
+              CyberShield <span style={{ color: '#00f0ff' }}>AI</span>
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: online ? '#10b981' : '#ef4444',
+                boxShadow: `0 0 6px ${online ? '#10b981' : '#ef4444'}`
+              }} />
+              <span style={{ ...M, fontSize: '.58rem', color: online ? '#10b981' : '#ef4444', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                {online ? 'ZERO-TRUST LIVE' : 'OFFLINE'}
+              </span>
             </div>
-            <p style={{ fontSize: '.64rem', color: '#475569', marginTop: 0 }}>Intelligent Vulnerability Assessment &amp; Risk Prioritization</p>
           </div>
         </div>
 
         {/* Tabs */}
-        <nav style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.03)', padding: 3, borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap' }}>
-          {TABS.map(({ id, icon, label }) => (
-            <button key={id} className={`nav-btn${tab === id ? ' active' : ''}`} onClick={() => setTab(id)} style={{ padding: '6px 13px', fontSize: '.74rem' }}>
-              <span style={{ fontSize: '.85rem' }}>{icon}</span> {label}
-            </button>
-          ))}
+        <nav style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.03)', padding: 3, borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
+          {TABS.map(({ id, icon, label }) => {
+            const isAI = id === 'aicopilot';
+            const isActive = tab === id;
+            return (
+              <button
+                key={id}
+                className={`nav-btn${isActive ? ' active' : ''}`}
+                onClick={() => setTab(id)}
+                style={{
+                  padding: '6px 13px',
+                  fontSize: '.74rem',
+                  position: 'relative',
+                  ...(isAI && !isActive ? {
+                    background: 'linear-gradient(135deg, rgba(0,240,255,0.12), rgba(139,92,246,0.12))',
+                    border: '1px solid rgba(0,240,255,0.3)',
+                    color: '#67e8f9',
+                    fontWeight: 700
+                  } : isAI && isActive ? {
+                    background: 'linear-gradient(135deg, rgba(0,240,255,0.3), rgba(139,92,246,0.3))',
+                    boxShadow: '0 0 16px rgba(0,240,255,0.4)',
+                    border: '1px solid #00f0ff'
+                  } : {})
+                }}
+              >
+                <span style={{ marginRight: 5 }}>{icon}</span>
+                <span>{label}</span>
+                {isAI && (
+                  <span style={{
+                    position: 'absolute', top: -4, right: -4,
+                    background: '#00f0ff', color: '#000',
+                    fontSize: '.48rem', fontWeight: 900,
+                    padding: '1px 4px', borderRadius: 4,
+                    ...M, letterSpacing: 0.5,
+                    boxShadow: '0 0 8px #00f0ff'
+                  }}>
+                    PRO
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
-        {/* User Auth Chip + Audit Download + Live Metrics */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        {/* Right CTA / Live Stats */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+
+          {/* Autonomous Cyber War Room Button */}
+          <button
+            onClick={onOpenWarRoom}
+            className="btn btn-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgba(239,68,68,0.35), rgba(139,92,246,0.4))',
+              border: '1.5px solid #ef4444',
+              color: '#fff',
+              fontWeight: 900,
+              padding: '6px 14px',
+              borderRadius: 8,
+              fontSize: '.72rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              boxShadow: '0 0 18px rgba(239,68,68,0.5)',
+              animation: 'pulse 1.8s infinite'
+            }}
+            title="Launch Autonomous AI Red vs. Blue Cyber Warfare Arena"
+          >
+            ⚔️ Cyber War Room
+          </button>
+
+          {/* Threat Radar Launch Button */}
+          <button
+            onClick={onOpenThreatMap}
+            className="btn btn-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,240,255,0.18), rgba(139,92,246,0.25))',
+              border: '1.5px solid #00f0ff',
+              color: '#67e8f9',
+              fontWeight: 900,
+              padding: '6px 12px',
+              borderRadius: 8,
+              fontSize: '.72rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              boxShadow: '0 0 14px rgba(0,240,255,0.35)'
+            }}
+            title="Launch Live 3D Global Cyber Warfare Threat Map"
+          >
+            🛰️ Threat Radar
+          </button>
+
+          {/* Attack Graph Simulator Button */}
+          <button
+            onClick={onOpenAttackGraph}
+            className="btn btn-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(249,115,22,0.3))',
+              border: '1.5px solid #ef4444',
+              color: '#fca5a5',
+              fontWeight: 900,
+              padding: '6px 12px',
+              borderRadius: 8,
+              fontSize: '.72rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              boxShadow: '0 0 14px rgba(239,68,68,0.3)'
+            }}
+            title="Launch Interactive Multi-Stage Attack Graph Simulator"
+          >
+            ⚔️ Attack Graph
+          </button>
+
           {/* Glowing Faculty Defense Pitch Pad Button */}
           <button
             onClick={onOpenPitchPad}

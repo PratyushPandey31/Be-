@@ -53,6 +53,80 @@ export default function ReportPanel({ stats, risks, metrics, API = 'http://127.0
     }, 400);
   };
 
+  const [aiSpeechRole, setAiSpeechRole]   = useState('ciso');
+  const [aiSpeechText, setAiSpeechText]   = useState('');
+  const [aiSpeechLoading, setAiSpeechLoading] = useState(false);
+  const [isSpeaking, setIsSpeaking]       = useState(false);
+
+  const generateAISpeech = async (role = aiSpeechRole) => {
+    setAiSpeechLoading(true);
+    setAiSpeechText('');
+    window.speechSynthesis?.cancel();
+    setIsSpeaking(false);
+
+    const prompts = {
+      ciso: `Give a 60-second high-impact CISO Boardroom Security Briefing for the ${period} audit: 10 monitored enterprise nodes, Grade ${cfg.overall_grade}, ${cfg.financial_saved} in financial breach exposure saved, zero active perimeter breaches. Highlight CyberShield AI's 99.4% precision vs conventional tools.`,
+      board: `Give a high-level non-technical summary for the Board of Directors: explain how CyberShield AI protected mission-critical data assets and eliminated alert fatigue noise today.`,
+      faculty: `Deliver a crisp academic viva pitch defending CyberShield AI's multi-factor mathematical formulation (CVSS × W_crit × (1 + 0.4·EPSS) × W_exp) and SHAP XAI empirical results for IEEE evaluation.`,
+      secops: `Deliver an operational SecOps handoff briefing detailing active quarantine posture, FortiOS and Log4Shell virtual patches, and automated Merkle ledger archiving.`
+    };
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/ai/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompts[role] || prompts.ciso, model_id: 'gemini-2.5-pro', deep_search_depth: 'fast' })
+      });
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullText = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split('\n\n');
+        buffer = chunks.pop() || '';
+        for (const chunk of chunks) {
+          if (!chunk.trim()) continue;
+          let evtType = '', dataStr = '';
+          for (const line of chunk.split('\n')) {
+            if (line.startsWith('event: ')) evtType = line.slice(7).trim();
+            if (line.startsWith('data: '))  dataStr = line.slice(6).trim();
+          }
+          if (evtType === 'token' && dataStr) {
+            try {
+              const p = JSON.parse(dataStr);
+              fullText += p.token;
+              setAiSpeechText(prev => prev + p.token);
+            } catch {}
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAiSpeechLoading(false);
+    }
+  };
+
+  const playSpeechTTS = () => {
+    if (!window.speechSynthesis) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    const cleanText = aiSpeechText.replace(/[*#`_]/g, '');
+    const utter = new SpeechSynthesisUtterance(cleanText);
+    utter.rate = 1.05;
+    utter.pitch = 1.0;
+    utter.onend = () => setIsSpeaking(false);
+    utter.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utter);
+  };
+
   const copySignature = () => {
     navigator.clipboard.writeText(cryptoSig);
     setCopiedSig(true);
@@ -137,6 +211,91 @@ export default function ReportPanel({ stats, risks, metrics, API = 'http://127.0
             {gen ? 'Generating…' : '🖨️ Print / Save'}
           </button>
         </div>
+      </div>
+
+      {/* ── 🎙️ ROBO AI EXECUTIVE SPEECH & BOARDROOM AUDIO SYNTHESIZER ── */}
+      <div className="card no-print" style={{
+        padding: '20px 24px',
+        background: 'linear-gradient(135deg, rgba(139,92,246,0.12), rgba(6,12,28,0.96) 50%, rgba(0,240,255,0.08))',
+        border: '1.5px solid rgba(139,92,246,0.35)',
+        display: 'flex', flexDirection: 'column', gap: 12
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: '1.3rem', animation: aiSpeechLoading ? 'pulse 1s infinite' : 'none' }}>🎙️</span>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '.95rem', fontWeight: 800, color: '#fff' }}>
+                ROBO AI Autonomous Boardroom Speech &amp; Voice Synthesizer
+              </h4>
+              <p style={{ margin: '2px 0 0', fontSize: '.7rem', color: '#94a3b8' }}>
+                Generate customized AI speech scripts and live voice narration for Executive, Board, or Academic review.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {[
+              { id: 'ciso', label: '👔 Executive CISO' },
+              { id: 'board', label: '🏛️ Board of Directors' },
+              { id: 'faculty', label: '🎓 Faculty Defense' },
+              { id: 'secops', label: '🛡️ SecOps Lead' }
+            ].map(r => (
+              <button
+                key={r.id}
+                onClick={() => { setAiSpeechRole(r.id); generateAISpeech(r.id); }}
+                style={{
+                  padding: '5px 12px', borderRadius: 7, ...M, fontSize: '.68rem', cursor: 'pointer',
+                  background: aiSpeechRole === r.id ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.03)',
+                  border: aiSpeechRole === r.id ? '1.5px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
+                  color: aiSpeechRole === r.id ? '#c4b5fd' : '#94a3b8',
+                  fontWeight: aiSpeechRole === r.id ? 800 : 500
+                }}
+              >
+                {r.label}
+              </button>
+            ))}
+            <button
+              onClick={() => generateAISpeech(aiSpeechRole)}
+              disabled={aiSpeechLoading}
+              style={{
+                padding: '6px 16px', borderRadius: 8, border: 'none',
+                background: 'linear-gradient(135deg, #8b5cf6, #00f0ff)',
+                color: '#000', fontWeight: 900, fontSize: '.74rem', ...M, cursor: 'pointer'
+              }}
+            >
+              {aiSpeechLoading ? '⚡ Synthesizing…' : '✨ Generate Speech'}
+            </button>
+          </div>
+        </div>
+
+        {/* Streaming Speech Box */}
+        {(aiSpeechText || aiSpeechLoading) && (
+          <div style={{
+            background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(139,92,246,0.25)',
+            borderRadius: 10, padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ ...M, fontSize: '.64rem', color: '#c4b5fd', fontWeight: 800 }}>
+                📢 {aiSpeechRole.toUpperCase()} SPEECH SCRIPT
+              </span>
+              <button
+                onClick={playSpeechTTS}
+                style={{
+                  padding: '5px 14px', borderRadius: 7, border: '1px solid rgba(16,185,129,0.4)',
+                  background: isSpeaking ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.15)',
+                  color: isSpeaking ? '#f87171' : '#34d399', fontWeight: 800, fontSize: '.72rem',
+                  cursor: 'pointer', ...M, display: 'flex', alignItems: 'center', gap: 5
+                }}
+              >
+                {isSpeaking ? '⏹️ Stop Speech' : '🔊 Play Audio Briefing'}
+              </button>
+            </div>
+            <p style={{ ...M, fontSize: '.76rem', color: '#e2e8f0', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
+              {aiSpeechText}
+              {aiSpeechLoading && <span style={{ display: 'inline-block', width: 6, height: 12, background: '#c4b5fd', marginLeft: 3, verticalAlign: 'middle', animation: 'pulse .6s infinite' }} />}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ══ NON-IT LAYMAN FRIENDLY EXECUTIVE DASHBOARD CARD ══ */}

