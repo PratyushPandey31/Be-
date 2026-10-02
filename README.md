@@ -35,10 +35,11 @@
 ---
 
 ### 📁 Core Project Deliverables & Explanation Guides
+📕 **[Download PDF Guide — Every Single Feature Explained (`CyberShield_AI_Every_Single_Feature_Explained.pdf`)](CyberShield_AI_Every_Single_Feature_Explained.pdf)**  
 📝 **[Download Word Project Guide in Simple English (`CyberShield_AI_Complete_Project_Guide.docx`)](CyberShield_AI_Complete_Project_Guide.docx)**  
 📄 **[Read Full IEEE Project Report (`PROJECT_REPORT.md`)](PROJECT_REPORT.md)**  
 📊 **[Download PowerPoint Presentation (`CyberShield_AI_Presentation.pptx`)](CyberShield_AI_Presentation.pptx)**  
-🤖 **[Run Word & PPT Automation Scripts (`build_project_guide_docx.py` & `generate_cybershield_pptx.py`)](build_project_guide_docx.py)**
+🤖 **[Run Word & PDF Automation Scripts (`generate_every_feature_pdf.py` & `generate_cybershield_pptx.py`)](backend/generate_every_feature_pdf.py)**
 
 ---
 
